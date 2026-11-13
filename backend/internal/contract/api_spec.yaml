@@ -1,0 +1,2063 @@
+openapi: 3.0.3
+info:
+  title: Умная диспетчеризация выездных бригад — API решения
+  version: 1.0.0
+  description: |
+    Единый формат REST API, который реализует каждая команда в кейсе «Умная диспетчеризация
+    выездных бригад» (Всероссийский хакатон связи 2026, ПАО «Ростелеком»).
+
+    По этому API **оркестратор** организаторов загружает данные, получает план смены, передаёт
+    события в течение дня и забирает актуальный план. **Валидатор** организаторов пересчитывает
+    каждый план по единой матрице времени в пути и считает метрики. Отклонение от формата
+    (имена полей, типы, коды HTTP) приводит к тому, что план не будет оценён.
+
+    ## 1. Сценарий оценки одного дня
+
+    | Шаг | Вызов | Лимит |
+    |---|---|---|
+    | 1 | `GET /api/v1/health` — ждём `200` после `docker compose up` | 120 с с момента старта |
+    | 2 | `PUT /api/v1/reference` — СЦ, сотрудники, узлы доступа с домами, типы работ | 60 с |
+    | 3 | `PUT /api/v1/reference/travel-matrix` — единая матрица времени в пути | 60 с |
+    | 4 | `PUT /api/v1/days/{date}` — наряды дня, известные на момент `now` | 30 с |
+    | 5 | `POST /api/v1/days/{date}/plan` — построение плана | **300 с** |
+    | 6 | для каждого события по возрастанию `timestamp`: `POST /api/v1/days/{date}/events`, затем `GET /api/v1/days/{date}/plan` | **10 с** на событие |
+    | 7 | итоговый `GET /api/v1/days/{date}/plan` — по нему считаются метрики | 30 с |
+
+    Шаги 2–3 выполняются один раз за прогон, шаги 4–7 — для каждого из оцениваемых дней.
+    Загрузка нового дня может удалять состояние предыдущего: сервис обязан держать как минимум
+    один активный день.
+
+    ## 2. Модельное время
+
+    Сервис **не использует системные часы**. Текущее модельное время — это `now` из загрузки дня,
+    а после событий — `timestamp` последнего принятого события.
+
+    * Моменты времени — ISO 8601 со смещением: `2026-10-26T09:00:00+05:00` (Екатеринбург, UTC+5).
+      Сервис принимает любое корректное смещение, в ответах рекомендуется `+05:00`.
+    * Время суток в справочниках (смены, режим работы СЦ) — местное, формат `HH:MM`.
+    * Точность — секунды. Допуск валидатора при сравнении времени — 1 с.
+    * Длительности — в минутах (`*_min`) или секундах (`*_sec`), расстояния — в метрах (`*_m`).
+
+    ## 3. Модель исполнения плана
+
+    Оркестратор считает, что сотрудники выполняют **текущую версию плана в точности**, а все
+    отклонения приходят событиями. Поэтому выполненную часть плана менять нельзя.
+    В момент модельного времени `t`:
+
+    * остановка с `start < t` считается начатой: в следующих версиях плана у неё нельзя менять
+      сотрудника, наряд, `location_id`, `arrival` и `start`; `end` меняется только по событиям
+      `VISIT_DELAYED` и `ORDER_TRANSFERRED`;
+    * если у остановки изменился предшественник в маршруте или она новая, то
+      `arrival ≥ max(end предшественника, t) + время в пути` — сотрудник не может оказаться
+      у нового адреса раньше, чем узнал о нём;
+    * визит по наряду из события `NEW_ORDER` начинается не раньше `timestamp` события;
+    * отменённый наряд (`ORDER_CANCELLED`) не посещается, если визит ещё не начат;
+    * у сотрудника из события `STAFF_UNAVAILABLE` не может быть остановок, начинающихся в период
+      недоступности. Визит, начатый до `timestamp` события, считается выполненным по плану.
+
+    ## 4. Жёсткие ограничения
+
+    Валидатор проверяет каждую версию плана. Наряд, на котором нарушено ограничение, не
+    засчитывается и даёт штраф (п. 6 кейса).
+
+    | Код | Ограничение |
+    |---|---|
+    | H1 Допуск | хотя бы один профиль сотрудника входит в `work_type.profiles`; `order.technology` входит в `staff.technologies`; при `order.requires_height = true` нужен `staff.height_permit = true` |
+    | H2 Смена | `DEPOT_START.start ≥ shift.start`; `DEPOT_END.arrival ≤ shift.end`; все остановки — внутри смены |
+    | H3 Перерыв | если в маршруте есть визиты — ровно одна остановка `BREAK` длительностью не меньше `shift.break_duration_min`, `start` внутри `[break_window.from, break_window.to]`; перерыв не пересекается с другими остановками |
+    | H4 Слот | `order.slot.start ≤ VISIT.start ≤ order.latest_start` |
+    | H5 Норматив | `VISIT.end − VISIT.start = work_type.duration_min` (или момент из события `VISIT_DELAYED` / `ORDER_TRANSFERRED`) |
+    | H6 Дорога | `arrival(k) ≥ end(k−1) + travel(location(k−1), location(k))` по единой матрице; `start ≥ arrival`; `end ≥ start` |
+    | H7 АО | остаток в «рюкзаке» моделируется по маршруту: старт — `staff.equipment_start`; визит списывает `order.required_equipment` в момент `start`, остаток не может стать отрицательным; `RESTOCK` доводит остаток до `staff.equipment_capacity` |
+    | H8 СЦ | `DEPOT_START` и `DEPOT_END` — в СЦ сотрудника (`staff.service_center_id`); `RESTOCK` — в любом СЦ, открытом на всём интервале `[start, end]`, длительность не меньше `restock_duration_min` |
+    | H9 Учёт | каждый наряд дня (из загрузки и из `NEW_ORDER`) находится **ровно в одном** месте: визит в маршруте, `unassigned`, `pgp_groups[].order_ids` или `cancelled` |
+    | H10 Заморозка | правила раздела 3 между последовательными версиями плана |
+
+    Ограничения по типам остановок: первая остановка маршрута — `DEPOT_START`, последняя —
+    `DEPOT_END` (у недоступного сотрудника `DEPOT_END` не обязателен); у `VISIT`
+    `location_id = order.building_id`; у `BREAK` `location_id` совпадает с предыдущей остановкой,
+    время в пути до перерыва равно 0.
+
+    ## 5. Как план используется в оценке
+
+    * Наряд выполнен успешно, если визит начат в окне `[slot.start, latest_start]`, завершён не
+      позднее `deadline` и не нарушает H1–H10. Повторные обращения (`is_repeat = true`) идут с весом 2.
+      Генератор данных гарантирует, что `latest_start + duration_min ≤ deadline`.
+    * Время в пути и загрузка считаются по итоговой версии плана и единой матрице. Значения
+      `travel_sec`, `distance_m`, `totals`, `summary` в ответе — справочные, валидатор их
+      пересчитывает.
+    * Предупреждение о риске опоздания своевременно, если `Alert` типа `LATE_RISK` по наряду создан
+      (`created_at`) не позднее чем за 30 минут до `slot.start`. Оценивается по нарядам, которые
+      после событий были переназначены другому сотруднику или сняты из маршрута.
+    * ПГП: группы `pgp_groups` сравниваются с эталонными инцидентами по составу нарядов
+      (точность и полнота) и по моменту `detected_at`.
+    * Время ответа: план дольше 300 с — день не оценивается автоматически; событие дольше 10 с
+      считается необработанным в срок.
+
+    ## 6. Файлы исходных данных
+
+    Файлы из п. 4 кейса описаны схемами `*File`. Все JSON — UTF-8, корневой элемент — массив
+    (кроме `travel_matrix.json` и файлов сценария событий).
+
+    | Файл | Схема | Куда передаётся |
+    |---|---|---|
+    | `service_centers.json` | `ServiceCentersFile` | `PUT /reference` → `service_centers` |
+    | `staff.json` | `StaffFile` | `PUT /reference` → `staff` |
+    | `access_nodes.json` | `AccessNodesFile` | `PUT /reference` → `access_nodes` |
+    | `work_types.csv` | `WorkType` (строка CSV) | `PUT /reference` → `work_types` |
+    | `travel_matrix.json` | `TravelMatrix` | `PUT /reference/travel-matrix` |
+    | `orders_train.json` | `OrdersFile` | `PUT /days/{date}` → `orders` (наряды со слотом в этот день и `registered_at ≤ now`) |
+    | `events_example.json` | `EventScenarioFile` | `events` → `POST /events`; `triggers` разворачивает оркестратор |
+
+    `work_types.csv` — RFC 4180, разделитель запятая, UTF-8 без BOM, первая строка — заголовок с
+    именами полей схемы `WorkType`; списки (`profiles`) записываются через `|`, пустое значение — `null`.
+
+    ## 7. Общие соглашения
+
+    * Базовый путь `/api/v1`, порт по умолчанию `8080`, тело запросов и ответов — `application/json`.
+      Сервис принимает тела до 100 МБ (матрица времени в пути — около 20 МБ).
+    * Идентификаторы — строки, регистр значим. Значения перечислений — строго как в спецификации.
+    * Сервис игнорирует неизвестные поля во входных данных (например, `fact` в обучающих нарядах).
+      В ответах допускаются дополнительные поля, валидатор их не читает; обязательные поля и типы — строго.
+    * Ошибки возвращаются в формате `ErrorResponse`; при ошибке состояние сервиса не меняется.
+    * Дополнительные эндпоинты (UI, сценарный анализ, объяснения) допускаются под любыми другими путями.
+    * Авторизация не требуется.
+  contact:
+    name: Организаторы кейса «Умная диспетчеризация выездных бригад»
+servers:
+  - url: http://localhost:8080
+    description: Сервис команды в Docker Compose
+tags:
+  - name: service
+    description: Служебные методы
+  - name: reference
+    description: Справочные данные — один раз за прогон
+  - name: day
+    description: Наряды дня
+  - name: plan
+    description: Построение и получение плана
+  - name: events
+    description: События в течение смены и перепланирование
+security: []
+
+paths:
+  /api/v1/health:
+    get:
+      tags: [service]
+      operationId: getHealth
+      summary: Проверка готовности сервиса
+      description: Оркестратор опрашивает метод до первого ответа `200`, но не дольше 120 с после старта.
+      responses:
+        '200':
+          description: Сервис готов принимать данные
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+              example:
+                status: ok
+                team: Команда 17
+                version: 1.0.3
+
+  /api/v1/reference:
+    put:
+      tags: [reference]
+      operationId: putReference
+      summary: Загрузить справочники
+      description: |
+        Полностью заменяет справочные данные. Все загруженные ранее дни, планы и события удаляются.
+        Сотрудники в `staff` работают в каждый загружаемый день, если не указаны в
+        `DayInput.absent_staff_ids`; «рюкзак» в начале каждой смены — `equipment_start`.
+      x-time-limit-sec: 60
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReferenceData'
+            examples:
+              reference:
+                $ref: '#/components/examples/ReferenceDataExample'
+      responses:
+        '200':
+          description: Справочники загружены
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoadResult'
+              example:
+                status: loaded
+                counts:
+                  service_centers: 5
+                  staff: 40
+                  access_nodes: 142
+                  buildings: 1260
+                  work_types: 8
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+
+  /api/v1/reference/travel-matrix:
+    put:
+      tags: [reference]
+      operationId: putTravelMatrix
+      summary: Загрузить единую матрицу времени в пути
+      description: |
+        Матрица покрывает все СЦ и все дома из `access_nodes[].buildings[]`. Её же использует
+        валидатор, поэтому плановое время прибытия нужно считать по ней. Можно вызывать до или
+        после `PUT /reference`; повторный вызов заменяет матрицу.
+      x-time-limit-sec: 60
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TravelMatrix'
+            examples:
+              matrix:
+                $ref: '#/components/examples/TravelMatrixExample'
+      responses:
+        '200':
+          description: Матрица загружена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoadResult'
+              example:
+                status: loaded
+                counts:
+                  points: 1265
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+
+  /api/v1/days/{date}:
+    parameters:
+      - $ref: '#/components/parameters/DateParam'
+    put:
+      tags: [day]
+      operationId: putDay
+      summary: Загрузить наряды дня
+      description: |
+        Загружает пул нарядов на дату `date` и задаёт модельное время `now`, на которое строится
+        первоначальный план. Повторный вызов для той же даты сбрасывает план и журнал событий дня.
+        Наряды, зарегистрированные позже `now`, приходят событиями `NEW_ORDER`.
+      x-time-limit-sec: 30
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DayInput'
+            examples:
+              day:
+                $ref: '#/components/examples/DayInputExample'
+      responses:
+        '200':
+          description: День загружен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoadResult'
+              example:
+                status: loaded
+                counts:
+                  orders: 384
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+
+  /api/v1/days/{date}/plan:
+    parameters:
+      - $ref: '#/components/parameters/DateParam'
+    post:
+      tags: [plan]
+      operationId: buildPlan
+      summary: Построить план на день
+      description: |
+        Синхронно строит первоначальный план на момент `now` и возвращает его (`plan_version = 1`).
+        Ответ — не позднее `time_limit_sec` и не позднее 300 с; таймауты HTTP-сервера и прокси
+        должны быть не меньше 330 с. Повторный вызов до первого события перестраивает план заново;
+        после первого принятого события — `409`.
+      x-time-limit-sec: 300
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlanRequest'
+            example:
+              time_limit_sec: 300
+      responses:
+        '200':
+          description: План построен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Plan'
+              examples:
+                plan:
+                  $ref: '#/components/examples/PlanExample'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+    get:
+      tags: [plan]
+      operationId: getPlan
+      summary: Получить актуальный план
+      description: |
+        Возвращает текущую версию плана с учётом всех принятых событий. Результат должен
+        отражать последнее событие сразу после ответа на `POST /events`.
+      x-time-limit-sec: 30
+      responses:
+        '200':
+          description: Актуальная версия плана
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Plan'
+              examples:
+                plan:
+                  $ref: '#/components/examples/PlanExample'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/v1/days/{date}/events:
+    parameters:
+      - $ref: '#/components/parameters/DateParam'
+    post:
+      tags: [events]
+      operationId: postEvent
+      summary: Передать событие и перепланировать
+      description: |
+        Принимает одно событие, переводит модельное время на `timestamp`, перестраивает
+        невыполненную часть плана и обновляет предупреждения. Ответ — не позднее 10 с.
+
+        * События приходят в порядке неубывания `timestamp`; одинаковый `timestamp` допустим.
+        * Повтор события с уже принятым `event_id` не меняет состояние: ответ `200`
+          с `duplicate = true` и тем же `plan_version`.
+        * Каждое принятое (не повторное) событие увеличивает `plan_version` на 1, даже если план
+          не изменился.
+        * Событие, которое ссылается на неизвестный наряд или сотрудника либо противоречит
+          состоянию плана, отклоняется с `422`; состояние не меняется.
+      x-time-limit-sec: 10
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Event'
+            examples:
+              new_order:
+                $ref: '#/components/examples/NewOrderEventExample'
+              order_cancelled:
+                $ref: '#/components/examples/OrderCancelledEventExample'
+              visit_delayed:
+                $ref: '#/components/examples/VisitDelayedEventExample'
+              order_transferred:
+                $ref: '#/components/examples/OrderTransferredEventExample'
+              staff_unavailable:
+                $ref: '#/components/examples/StaffUnavailableEventExample'
+              time_tick:
+                $ref: '#/components/examples/TimeTickEventExample'
+      responses:
+        '200':
+          description: Событие обработано (или уже было обработано ранее)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventResult'
+              examples:
+                result:
+                  $ref: '#/components/examples/EventResultExample'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+
+components:
+  parameters:
+    DateParam:
+      name: date
+      in: path
+      required: true
+      description: Дата рабочего дня (местная), `YYYY-MM-DD`
+      schema:
+        type: string
+        format: date
+        example: '2026-10-26'
+
+  responses:
+    BadRequest:
+      description: Некорректный JSON или нарушение схемы
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error:
+              code: BAD_REQUEST
+              message: 'Поле slot.end: ожидается date-time'
+              details:
+                - field: orders[12].slot.end
+                  message: ожидается date-time
+    NotFound:
+      description: День не загружен или план ещё не построен
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error:
+              code: PLAN_NOT_FOUND
+              message: План на 2026-10-26 ещё не построен
+              details: []
+    Conflict:
+      description: Нарушен порядок вызовов (нет справочников, событие раньше предыдущего, план уже перепланировался)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error:
+              code: EVENT_OUT_OF_ORDER
+              message: timestamp 2026-10-26T10:00:00+05:00 раньше последнего события 2026-10-26T10:05:00+05:00
+              details: []
+    Unprocessable:
+      description: Данные корректны по схеме, но противоречат справочникам или состоянию
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error:
+              code: UNKNOWN_ORDER
+              message: Наряд ORD-20261026-9999 не найден в дне 2026-10-26
+              details:
+                - field: order_id
+                  message: неизвестный идентификатор
+
+  schemas:
+    # ---------- базовые типы ----------
+    DateTime:
+      type: string
+      format: date-time
+      description: Момент времени ISO 8601 со смещением
+      example: '2026-10-26T09:00:00+05:00'
+    LocalTime:
+      type: string
+      pattern: '^([01][0-9]|2[0-3]):[0-5][0-9]$'
+      description: Местное время суток `HH:MM`
+      example: '09:00'
+    TimeWindow:
+      type: object
+      required: [start, end]
+      additionalProperties: false
+      properties:
+        start:
+          $ref: '#/components/schemas/DateTime'
+        end:
+          $ref: '#/components/schemas/DateTime'
+    Technology:
+      type: string
+      enum: [PON, FTTB, XDSL, DOCSIS]
+      description: Технология подключения абонента
+    Profile:
+      type: string
+      enum: [INSTALL, LTP3]
+      description: '`INSTALL` — инсталляция (подключение услуг), `LTP3` — третья линия технической поддержки (восстановление услуг)'
+    WorkTypeCode:
+      type: string
+      enum:
+        - INST_PON_MKD
+        - INST_FTTB_MKD
+        - INST_PRIVATE_VLS
+        - ADD_SERVICE
+        - SURVEY_PRIVATE
+        - REPAIR
+        - DEGRADATION
+        - DISMANTLE
+      description: |
+        | Код | Тип работ |
+        |---|---|
+        | `INST_PON_MKD` | Инсталляция ШПД/IPTV, МКД, PON |
+        | `INST_FTTB_MKD` | Инсталляция ШПД/IPTV, МКД, FTTB |
+        | `INST_PRIVATE_VLS` | Инсталляция, частный сектор, с ВЛС |
+        | `ADD_SERVICE` | Доподключение услуги (IPTV, Wi-Fi-роутер) |
+        | `SURVEY_PRIVATE` | Обследование (частный сектор) |
+        | `REPAIR` | Устранение неисправности (обращение абонента) |
+        | `DEGRADATION` | Устранение деградации, выявленной системой мониторинга качества |
+        | `DISMANTLE` | Демонтаж АО |
+    BuildingType:
+      type: string
+      enum: [MKD, PRIVATE]
+      description: '`MKD` — многоквартирный дом, `PRIVATE` — частный дом'
+    Equipment:
+      type: object
+      description: Количество абонентского оборудования (АО) по видам
+      required: [ONT, ROUTER, STB]
+      additionalProperties: false
+      properties:
+        ONT:
+          type: integer
+          minimum: 0
+          description: Оптический терминал (PON)
+        ROUTER:
+          type: integer
+          minimum: 0
+          description: Роутер (в т.ч. Wi-Fi, xDSL- и DOCSIS-модем)
+        STB:
+          type: integer
+          minimum: 0
+          description: ТВ-приставка
+      example:
+        ONT: 1
+        ROUTER: 1
+        STB: 0
+
+    # ---------- справочники ----------
+    ServiceCenter:
+      type: object
+      required: [service_center_id, name, address, lat, lon, opening_hours, restock_duration_min]
+      properties:
+        service_center_id:
+          type: string
+          pattern: '^SC-[0-9]{2}$'
+          example: SC-01
+        name:
+          type: string
+          example: СЦ «Север»
+        address:
+          type: string
+          example: г. Екатеринбург, ул. Победы, 30
+        lat:
+          type: number
+          format: double
+          minimum: -90
+          maximum: 90
+          example: 56.8941
+        lon:
+          type: number
+          format: double
+          minimum: -180
+          maximum: 180
+          example: 60.6105
+        opening_hours:
+          type: object
+          description: Режим работы, в котором доступно пополнение АО
+          required: [open, close]
+          additionalProperties: false
+          properties:
+            open:
+              $ref: '#/components/schemas/LocalTime'
+            close:
+              $ref: '#/components/schemas/LocalTime'
+        restock_duration_min:
+          type: integer
+          minimum: 0
+          description: Время на пополнение «рюкзака» в СЦ, мин
+          example: 15
+    ServiceCentersFile:
+      type: array
+      description: Содержимое `service_centers.json`
+      items:
+        $ref: '#/components/schemas/ServiceCenter'
+
+    Shift:
+      type: object
+      required: [start, end, break_duration_min, break_window]
+      additionalProperties: false
+      properties:
+        start:
+          $ref: '#/components/schemas/LocalTime'
+        end:
+          $ref: '#/components/schemas/LocalTime'
+        break_duration_min:
+          type: integer
+          minimum: 0
+          example: 60
+        break_window:
+          type: object
+          description: Интервал, в котором должен **начаться** обеденный перерыв
+          required: [from, to]
+          additionalProperties: false
+          properties:
+            from:
+              $ref: '#/components/schemas/LocalTime'
+            to:
+              $ref: '#/components/schemas/LocalTime'
+      example:
+        start: '09:00'
+        end: '18:00'
+        break_duration_min: 60
+        break_window:
+          from: '12:00'
+          to: '15:00'
+    Staff:
+      type: object
+      required:
+        - staff_id
+        - service_center_id
+        - profiles
+        - technologies
+        - height_permit
+        - shift
+        - equipment_start
+        - equipment_capacity
+      properties:
+        staff_id:
+          type: string
+          pattern: '^ST-[0-9]{3}$'
+          example: ST-001
+        display_name:
+          type: string
+          description: Условное имя для интерфейса (данные синтетические)
+          example: Монтажник 001
+        service_center_id:
+          type: string
+          description: СЦ, к которому прикреплён сотрудник; маршрут начинается и заканчивается здесь
+          example: SC-01
+        profiles:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items:
+            $ref: '#/components/schemas/Profile'
+        technologies:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items:
+            $ref: '#/components/schemas/Technology'
+        height_permit:
+          type: boolean
+          description: Допуск к работам на высоте (нужен для нарядов с `requires_height = true`)
+        shift:
+          $ref: '#/components/schemas/Shift'
+        equipment_start:
+          allOf:
+            - $ref: '#/components/schemas/Equipment'
+          description: Остаток АО в «рюкзаке» в начале каждой смены
+        equipment_capacity:
+          allOf:
+            - $ref: '#/components/schemas/Equipment'
+          description: Остаток после пополнения в СЦ (`RESTOCK`); не меньше `equipment_start`
+        experience_years:
+          type: number
+          minimum: 0
+          description: Стаж, лет; справочно — для задачи прогноза длительности работ
+          example: 4.5
+    StaffFile:
+      type: array
+      description: Содержимое `staff.json`
+      items:
+        $ref: '#/components/schemas/Staff'
+
+    Building:
+      type: object
+      required: [building_id, address, lat, lon, building_type, overhead_line]
+      properties:
+        building_id:
+          type: string
+          pattern: '^B-[0-9]{5}$'
+          example: B-00412
+        address:
+          type: string
+          example: г. Екатеринбург, ул. Учителей, 18
+        lat:
+          type: number
+          format: double
+          example: 56.8712
+        lon:
+          type: number
+          format: double
+          example: 60.6531
+        building_type:
+          $ref: '#/components/schemas/BuildingType'
+        overhead_line:
+          type: boolean
+          description: Подключение по воздушной линии связи (ВЛС) — работы на высоте
+        zone_service_center_id:
+          type: string
+          description: СЦ, в зону которого входит дом; справочно, назначать сотрудников из других СЦ можно
+          example: SC-01
+    AccessNode:
+      type: object
+      required: [access_node_id, node_type, technology, name, lat, lon, buildings]
+      properties:
+        access_node_id:
+          type: string
+          pattern: '^AN-[0-9]{4}$'
+          example: AN-0031
+        node_type:
+          type: string
+          enum: [OLT, SWITCH, DSLAM, CMTS]
+          description: '`OLT` — PON, `SWITCH` — FTTB, `DSLAM` — xDSL, `CMTS` — DOCSIS'
+        technology:
+          $ref: '#/components/schemas/Technology'
+        name:
+          type: string
+          example: OLT Пионерский-2
+        address:
+          type: string
+          example: г. Екатеринбург, ул. Учителей, 22
+        lat:
+          type: number
+          format: double
+          example: 56.8698
+        lon:
+          type: number
+          format: double
+          example: 60.6510
+        buildings:
+          type: array
+          minItems: 1
+          description: Дома, которые обслуживает узел. Дом с несколькими технологиями встречается в нескольких узлах с одинаковыми атрибутами
+          items:
+            $ref: '#/components/schemas/Building'
+    AccessNodesFile:
+      type: array
+      description: Содержимое `access_nodes.json`
+      items:
+        $ref: '#/components/schemas/AccessNode'
+
+    WorkType:
+      type: object
+      description: Строка справочника `work_types.csv`
+      required:
+        - code
+        - name
+        - profiles
+        - duration_min
+        - max_start_delay_min
+        - deadline_kind
+        - deadline_value
+        - repeat_deadline_value
+        - pgp_relevant
+      properties:
+        code:
+          $ref: '#/components/schemas/WorkTypeCode'
+        name:
+          type: string
+          example: Устранение неисправности (обращение абонента)
+        profiles:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items:
+            $ref: '#/components/schemas/Profile'
+          description: Профили, допускаемые к работам; в CSV — через `|`, например `INSTALL|LTP3`
+        duration_min:
+          type: integer
+          minimum: 1
+          description: Норматив длительности работ, мин
+          example: 60
+        max_start_delay_min:
+          type: integer
+          nullable: true
+          minimum: 0
+          description: |
+            Максимальная задержка начала визита от начала слота, мин. Для инсталляции — 10
+            («не позднее 10 минут после начала слота»), `null` — визит можно начать в любой момент слота
+          example: 10
+        deadline_kind:
+          type: string
+          enum: [SLOT, HOURS, WORKING_DAYS]
+          description: |
+            Как задан контрольный срок: `SLOT` — визит в слот; `HOURS` — часов с регистрации;
+            `WORKING_DAYS` — рабочих дней с регистрации (производственный календарь РФ).
+            Конкретный срок уже рассчитан в `Order.deadline`
+        deadline_value:
+          type: integer
+          nullable: true
+          minimum: 1
+          description: Значение срока в единицах `deadline_kind`; `null` для `SLOT`
+          example: 24
+        repeat_deadline_value:
+          type: integer
+          nullable: true
+          minimum: 1
+          description: Срок для повторного обращения в тех же единицах (`REPAIR` — 12 ч); `null` — как у обычного
+          example: 12
+        pgp_relevant:
+          type: boolean
+          description: Наряды этого типа учитываются при выявлении ПГП (`REPAIR`, `DEGRADATION`)
+
+    TravelMatrix:
+      type: object
+      description: |
+        Единая матрица времени в пути по дорожной сети (содержимое `travel_matrix.json`).
+        Время из точки `points[i]` в точку `points[j]` — `durations_sec[i][j]`. Значение — полное
+        время от остановки до остановки, включая парковку и подход к подъезду; из точки в саму
+        себя — 0 (два наряда в одном доме). Матрица может быть несимметричной.
+      required: [matrix_id, points, durations_sec, distances_m]
+      properties:
+        matrix_id:
+          type: string
+          description: Версия матрицы
+          example: ekb-2026-10-v1
+        points:
+          type: array
+          description: Идентификаторы точек — все `service_center_id` и все `building_id`
+          minItems: 2
+          uniqueItems: true
+          items:
+            type: string
+        durations_sec:
+          type: array
+          description: Квадратная матрица N×N, секунды
+          items:
+            type: array
+            items:
+              type: integer
+              minimum: 0
+        distances_m:
+          type: array
+          description: Квадратная матрица N×N, метры
+          items:
+            type: array
+            items:
+              type: integer
+              minimum: 0
+        hourly_factors:
+          type: array
+          description: |
+            Коэффициенты загруженности дорог по часу отправления (дополнительное задание).
+            Базовая оценка их **не применяет**: проверка H6 идёт по `durations_sec` без коэффициентов
+          items:
+            type: object
+            required: [hour, factor]
+            additionalProperties: false
+            properties:
+              hour:
+                type: integer
+                minimum: 0
+                maximum: 23
+              factor:
+                type: number
+                minimum: 0
+                example: 1.35
+
+    ReferenceData:
+      type: object
+      required: [service_centers, staff, access_nodes, work_types]
+      properties:
+        service_centers:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/ServiceCenter'
+        staff:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/Staff'
+        access_nodes:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/AccessNode'
+        work_types:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/WorkType'
+
+    # ---------- наряды ----------
+    Order:
+      type: object
+      required:
+        - order_id
+        - work_type_code
+        - technology
+        - building_id
+        - address
+        - lat
+        - lon
+        - building_type
+        - requires_height
+        - access_node_id
+        - registered_at
+        - slot
+        - latest_start
+        - deadline
+        - required_equipment
+        - is_repeat
+      properties:
+        order_id:
+          type: string
+          pattern: '^ORD-[0-9]{8}-[0-9]{4}$'
+          example: ORD-20261026-0001
+        work_type_code:
+          $ref: '#/components/schemas/WorkTypeCode'
+        technology:
+          $ref: '#/components/schemas/Technology'
+        building_id:
+          type: string
+          description: Дом из реестра `access_nodes[].buildings[]`; по нему берётся время в пути из матрицы
+          example: B-00412
+        address:
+          type: string
+          example: г. Екатеринбург, ул. Учителей, 18
+        lat:
+          type: number
+          format: double
+          example: 56.8712
+        lon:
+          type: number
+          format: double
+          example: 60.6531
+        building_type:
+          $ref: '#/components/schemas/BuildingType'
+        requires_height:
+          type: boolean
+          description: Частный сектор с ВЛС — нужен допуск к работам на высоте
+        access_node_id:
+          type: string
+          description: Узел доступа, через который подключён абонент; используется для выявления ПГП
+          example: AN-0031
+        registered_at:
+          allOf:
+            - $ref: '#/components/schemas/DateTime'
+          description: Момент регистрации наряда
+        slot:
+          allOf:
+            - $ref: '#/components/schemas/TimeWindow'
+          description: Согласованный с абонентом временной слот, 2 часа
+        latest_start:
+          allOf:
+            - $ref: '#/components/schemas/DateTime'
+          description: |
+            Последний допустимый момент начала визита:
+            `min(slot.end, slot.start + max_start_delay_min)`; для инсталляции — `slot.start + 10 мин`
+        deadline:
+          allOf:
+            - $ref: '#/components/schemas/DateTime'
+          description: |
+            Контрольный срок — момент, до которого работы должны быть завершены. Уже рассчитан по
+            типу работ, `registered_at`, признаку повторности и производственному календарю.
+            Для типов с контрольным сроком `SLOT` — `latest_start + duration_min`
+        required_equipment:
+          $ref: '#/components/schemas/Equipment'
+        is_repeat:
+          type: boolean
+          description: Повторное обращение — тот же абонент и услуга в течение 7 дней после закрытия предыдущего наряда; вес в оценке — 2
+        previous_order_id:
+          type: string
+          nullable: true
+          description: Предыдущий наряд абонента для повторного обращения (может отсутствовать в наборе)
+        fact:
+          $ref: '#/components/schemas/OrderFact'
+    OrderFact:
+      type: object
+      nullable: true
+      description: |
+        Фактическое исполнение — только в обучающем наборе `orders_train.json` (история для
+        аналитики и прогноза длительности). В скрытом наборе отсутствует, сервис поле игнорирует
+      properties:
+        outcome:
+          type: string
+          enum: [COMPLETED, TRANSFERRED_TO_STATION, CANCELLED, RESCHEDULED, PGP_GROUPED]
+        staff_id:
+          type: string
+          nullable: true
+        actual_start:
+          allOf:
+            - $ref: '#/components/schemas/DateTime'
+          nullable: true
+        actual_duration_min:
+          type: integer
+          nullable: true
+          minimum: 0
+        pgp_incident_id:
+          type: string
+          nullable: true
+          description: Эталонный инцидент ПГП, к которому относится наряд
+    OrdersFile:
+      type: array
+      description: Содержимое `orders_train.json` — наряды за все обучающие дни; день наряда — дата `slot.start`
+      items:
+        $ref: '#/components/schemas/Order'
+
+    DayInput:
+      type: object
+      required: [date, now, orders]
+      properties:
+        date:
+          type: string
+          format: date
+          example: '2026-10-26'
+        now:
+          allOf:
+            - $ref: '#/components/schemas/DateTime'
+          description: Модельное время построения первоначального плана (обычно 08:30 этого дня)
+        orders:
+          type: array
+          description: Наряды со слотом в день `date`, зарегистрированные не позднее `now`
+          items:
+            $ref: '#/components/schemas/Order'
+        absent_staff_ids:
+          type: array
+          description: Сотрудники, которые в этот день не выходят на смену
+          default: []
+          uniqueItems: true
+          items:
+            type: string
+    PlanRequest:
+      type: object
+      properties:
+        time_limit_sec:
+          type: integer
+          minimum: 1
+          maximum: 300
+          default: 300
+          description: Лимит времени расчёта; сервис обязан ответить не позже
+
+    # ---------- план ----------
+    Plan:
+      type: object
+      required:
+        - date
+        - plan_version
+        - as_of
+        - routes
+        - unassigned
+        - pgp_groups
+        - cancelled
+        - alerts
+      properties:
+        date:
+          type: string
+          format: date
+          example: '2026-10-26'
+        plan_version:
+          type: integer
+          minimum: 1
+          description: 1 — первоначальный план; +1 за каждое принятое событие
+          example: 1
+        based_on_event_id:
+          type: string
+          nullable: true
+          description: Последнее учтённое событие; `null` для первоначального плана
+        as_of:
+          allOf:
+            - $ref: '#/components/schemas/DateTime'
+          description: Модельное время, на которое актуален план
+        computation_ms:
+          type: integer
+          minimum: 0
+          description: Время расчёта этой версии, мс (справочно)
+        routes:
+          type: array
+          description: По одному маршруту на каждого сотрудника на смене, в том числе без визитов
+          items:
+            $ref: '#/components/schemas/Route'
+        unassigned:
+          type: array
+          description: Наряды, не включённые в маршруты, с причиной (кроме ПГП и отменённых)
+          items:
+            $ref: '#/components/schemas/UnassignedOrder'
+        pgp_groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/PgpGroup'
+        cancelled:
+          type: array
+          items:
+            $ref: '#/components/schemas/CancelledOrder'
+        alerts:
+          type: array
+          description: Все предупреждения за день, включая закрытые. Список только пополняется — удалять предупреждения нельзя
+          items:
+            $ref: '#/components/schemas/Alert'
+        summary:
+          $ref: '#/components/schemas/PlanSummary'
+
+    Route:
+      type: object
+      required: [staff_id, service_center_id, status, stops]
+      properties:
+        staff_id:
+          type: string
+          example: ST-001
+        service_center_id:
+          type: string
+          example: SC-01
+        status:
+          type: string
+          enum: [ACTIVE, UNAVAILABLE]
+          description: '`UNAVAILABLE` — сотрудник выбыл по событию `STAFF_UNAVAILABLE`'
+        unavailable_from:
+          allOf:
+            - $ref: '#/components/schemas/DateTime'
+          nullable: true
+        unavailable_until:
+          allOf:
+            - $ref: '#/components/schemas/DateTime'
+          nullable: true
+          description: '`null` — до конца смены'
+        stops:
+          type: array
+          description: Остановки в порядке выполнения. Пустой список — сотрудник не задействован
+          items:
+            $ref: '#/components/schemas/Stop'
+        totals:
+          $ref: '#/components/schemas/RouteTotals'
+
+    Stop:
+      type: object
+      required: [seq, type, location_id, arrival, start, end]
+      properties:
+        seq:
+          type: integer
+          minimum: 1
+          description: Порядковый номер в маршруте, 1, 2, 3… без пропусков
+        type:
+          type: string
+          enum: [DEPOT_START, VISIT, BREAK, RESTOCK, DEPOT_END]
+          description: |
+            | Тип | Смысл | Время |
+            |---|---|---|
+            | `DEPOT_START` | выезд из своего СЦ | `arrival = start = end` — момент выезда |
+            | `VISIT` | работы по наряду | `arrival` — прибытие, `start`…`end` — работы по нормативу |
+            | `BREAK` | обеденный перерыв на месте предыдущей остановки | `start`…`end` — перерыв |
+            | `RESTOCK` | пополнение АО в любом открытом СЦ | `start`…`end` — не меньше `restock_duration_min` |
+            | `DEPOT_END` | возвращение в свой СЦ | `arrival = start = end` — момент прибытия |
+        location_id:
+          type: string
+          description: '`building_id` для `VISIT`, `service_center_id` для `DEPOT_*` и `RESTOCK`, точка предыдущей остановки для `BREAK`'
+          example: B-00412
+        order_id:
+          type: string
+          nullable: true
+          description: Обязателен для `VISIT`, для остальных типов — `null` или отсутствует
+          example: ORD-20261026-0001
+        arrival:
+          $ref: '#/components/schemas/DateTime'
+        start:
+          $ref: '#/components/schemas/DateTime'
+        end:
+          $ref: '#/components/schemas/DateTime'
+        travel_sec:
+          type: integer
+          minimum: 0
+          description: Время в пути от предыдущей остановки по матрице (справочно)
+        distance_m:
+          type: integer
+          minimum: 0
+          description: Расстояние от предыдущей остановки по матрице (справочно)
+        status:
+          type: string
+          enum: [PLANNED, IN_PROGRESS, DONE]
+          description: Состояние на момент `as_of` (справочно)
+        equipment_after:
+          allOf:
+            - $ref: '#/components/schemas/Equipment'
+          description: Остаток АО после остановки (справочно)
+        explanation:
+          type: string
+          description: Почему наряд назначен этому сотруднику (дополнительное задание)
+          example: Ближайший свободный сотрудник с PON; в запасе 25 мин до конца слота
+    RouteTotals:
+      type: object
+      description: Итоги маршрута (справочно, валидатор пересчитывает)
+      properties:
+        visits:
+          type: integer
+          minimum: 0
+        travel_sec:
+          type: integer
+          minimum: 0
+        distance_m:
+          type: integer
+          minimum: 0
+        work_min:
+          type: integer
+          minimum: 0
+        utilization:
+          type: number
+          minimum: 0
+          description: (работы + дорога) / (смена − перерыв)
+
+    UnassignedOrder:
+      type: object
+      required: [order_id, reason_code, reason_text, suggested_action]
+      properties:
+        order_id:
+          type: string
+          example: ORD-20261026-0233
+        reason_code:
+          type: string
+          enum:
+            - NO_QUALIFIED_STAFF
+            - NO_SHIFT_TIME
+            - SLOT_UNREACHABLE
+            - NO_EQUIPMENT
+            - STAFF_UNAVAILABLE
+            - OTHER
+          description: |
+            | Код | Причина |
+            |---|---|
+            | `NO_QUALIFIED_STAFF` | на смене нет сотрудника с нужным профилем, технологией или допуском к высоте |
+            | `NO_SHIFT_TIME` | у подходящих сотрудников не хватает времени смены |
+            | `SLOT_UNREACHABLE` | ни один подходящий сотрудник не успевает начать визит в слот |
+            | `NO_EQUIPMENT` | нет требуемого АО, а заезд в СЦ не помещается в маршрут |
+            | `STAFF_UNAVAILABLE` | исполнитель выбыл, замену найти не удалось |
+            | `OTHER` | другое — пояснить в `reason_text` |
+        reason_text:
+          type: string
+          example: На смене нет свободного сотрудника с допуском к работам на высоте и технологией PON
+        suggested_action:
+          type: string
+          enum: [RESCHEDULE, REASSIGN, ESCALATE]
+          description: '`RESCHEDULE` — перенос визита, `REASSIGN` — передать другому подразделению/смене, `ESCALATE` — решение диспетчера'
+        proposed_slot:
+          allOf:
+            - $ref: '#/components/schemas/TimeWindow'
+          nullable: true
+          description: Предлагаемый новый слот при переносе
+        since:
+          allOf:
+            - $ref: '#/components/schemas/DateTime'
+          nullable: true
+          description: С какого модельного времени наряд не распределён
+    PgpGroup:
+      type: object
+      description: |
+        Подозрение на групповую проблему: наряды на неисправность (`work_type.pgp_relevant = true`)
+        с одного узла доступа за короткое время. Такие наряды не распределяются по отдельности и
+        передаются в станционное подразделение. Наряд ПГП, визит по которому уже начат, остаётся
+        в маршруте и в группу не включается.
+
+        Эталонная разметка организаторов: ПГП — не менее 3 таких нарядов с одного узла доступа,
+        зарегистрированных в пределах 60 минут. Случайные совпадения в данных не превышают
+        2 нарядов с узла за 60 минут.
+      required: [group_id, access_node_id, order_ids, detected_at, action]
+      properties:
+        group_id:
+          type: string
+          example: PGP-20261026-01
+        access_node_id:
+          type: string
+          example: AN-0057
+        order_ids:
+          type: array
+          minItems: 2
+          uniqueItems: true
+          items:
+            type: string
+        detected_at:
+          allOf:
+            - $ref: '#/components/schemas/DateTime'
+          description: Модельное время выявления (не меняется при пополнении группы)
+        action:
+          type: string
+          enum: [TRANSFER_TO_STATION]
+        comment:
+          type: string
+    CancelledOrder:
+      type: object
+      required: [order_id, cancelled_at]
+      properties:
+        order_id:
+          type: string
+        cancelled_at:
+          $ref: '#/components/schemas/DateTime'
+        event_id:
+          type: string
+          nullable: true
+    Alert:
+      type: object
+      description: |
+        Предупреждение для диспетчера. `LATE_RISK` создаётся, как только по текущему прогнозу
+        сотрудник не успевает начать визит в слот, вместе с предложением: передать наряд другому
+        сотруднику (`REASSIGN`) или перенести визит (`RESCHEDULE`). Если сервис сам применил
+        предложение в плане, `applied = true`.
+      required: [alert_id, created_at, type, status, suggested_action, message]
+      properties:
+        alert_id:
+          type: string
+          description: Уникален в пределах дня
+          example: ALR-20261026-0007
+        created_at:
+          allOf:
+            - $ref: '#/components/schemas/DateTime'
+          description: Модельное время создания; по нему оценивается своевременность
+        type:
+          type: string
+          enum: [LATE_RISK, PGP_DETECTED, UNASSIGNED]
+        status:
+          type: string
+          enum: [ACTIVE, RESOLVED]
+        resolved_at:
+          allOf:
+            - $ref: '#/components/schemas/DateTime'
+          nullable: true
+        order_id:
+          type: string
+          nullable: true
+          description: Обязателен для `LATE_RISK` и `UNASSIGNED`
+        group_id:
+          type: string
+          nullable: true
+          description: Обязателен для `PGP_DETECTED`
+        staff_id:
+          type: string
+          nullable: true
+          description: Текущий исполнитель на момент создания
+        forecast_start:
+          allOf:
+            - $ref: '#/components/schemas/DateTime'
+          nullable: true
+          description: Прогноз начала визита без вмешательства
+        lateness_min:
+          type: integer
+          nullable: true
+          description: Прогноз опоздания относительно `latest_start`, мин
+        suggested_action:
+          type: string
+          enum: [REASSIGN, RESCHEDULE, TRANSFER_TO_STATION, NONE]
+        suggested_staff_id:
+          type: string
+          nullable: true
+          description: Для `REASSIGN`
+        proposed_slot:
+          allOf:
+            - $ref: '#/components/schemas/TimeWindow'
+          nullable: true
+          description: Для `RESCHEDULE`
+        applied:
+          type: boolean
+          default: false
+          description: Предложение уже применено в текущем плане
+        message:
+          type: string
+          example: ST-014 выбыл, визит по ORD-20261026-0188 не начнётся до 15:00 — передан ST-003
+    PlanSummary:
+      type: object
+      description: Сводка (справочно, валидатор пересчитывает)
+      properties:
+        orders_total:
+          type: integer
+        visits_planned:
+          type: integer
+        unassigned:
+          type: integer
+        pgp_orders:
+          type: integer
+        cancelled:
+          type: integer
+        travel_sec_total:
+          type: integer
+        utilization_cv:
+          type: number
+          description: Коэффициент вариации загрузки сотрудников
+
+    # ---------- события ----------
+    EventType:
+      type: string
+      enum:
+        - NEW_ORDER
+        - ORDER_CANCELLED
+        - VISIT_DELAYED
+        - ORDER_TRANSFERRED
+        - STAFF_UNAVAILABLE
+        - TIME_TICK
+      description: |
+        | Тип | Что произошло |
+        |---|---|
+        | `NEW_ORDER` | зарегистрирован новый наряд со слотом сегодня |
+        | `ORDER_CANCELLED` | абонент не подтвердил визит при звонке или отказался |
+        | `VISIT_DELAYED` | работы на объекте затягиваются, визит закончится в `expected_end` |
+        | `ORDER_TRANSFERRED` | повреждение вне зоны ответственности 3ЛТП: наряд передан в профильное подразделение, визит закончился в `actual_end` |
+        | `STAFF_UNAVAILABLE` | сотрудник недоступен с `timestamp` до `until` |
+        | `TIME_TICK` | ход модельного времени без событий: сервис обновляет прогнозы и предупреждения |
+    EventBase:
+      type: object
+      required: [event_id, type, timestamp]
+      properties:
+        event_id:
+          type: string
+          description: Уникален в пределах дня; повтор — идемпотентен
+          example: EV-20261026-0001
+        type:
+          $ref: '#/components/schemas/EventType'
+        timestamp:
+          allOf:
+            - $ref: '#/components/schemas/DateTime'
+          description: Модельное время события
+    NewOrderEvent:
+      allOf:
+        - $ref: '#/components/schemas/EventBase'
+        - type: object
+          required: [type, order]
+          properties:
+            type:
+              type: string
+              enum: [NEW_ORDER]
+            order:
+              $ref: '#/components/schemas/Order'
+    OrderCancelledEvent:
+      allOf:
+        - $ref: '#/components/schemas/EventBase'
+        - type: object
+          required: [type, order_id, reason]
+          properties:
+            type:
+              type: string
+              enum: [ORDER_CANCELLED]
+            order_id:
+              type: string
+            reason:
+              type: string
+              enum: [NOT_CONFIRMED, CUSTOMER_REQUEST]
+    VisitDelayedEvent:
+      allOf:
+        - $ref: '#/components/schemas/EventBase'
+        - type: object
+          required: [type, staff_id, order_id, expected_end]
+          description: Приходит, когда визит уже начат (`start ≤ timestamp`)
+          properties:
+            type:
+              type: string
+              enum: [VISIT_DELAYED]
+            staff_id:
+              type: string
+            order_id:
+              type: string
+            expected_end:
+              allOf:
+                - $ref: '#/components/schemas/DateTime'
+              description: Новый момент окончания работ, позже планового
+    OrderTransferredEvent:
+      allOf:
+        - $ref: '#/components/schemas/EventBase'
+        - type: object
+          required: [type, staff_id, order_id, actual_end, transferred_to]
+          description: Приходит, когда визит уже начат; наряд считается обслуженным на месте, время сотрудника освобождается раньше
+          properties:
+            type:
+              type: string
+              enum: [ORDER_TRANSFERRED]
+            staff_id:
+              type: string
+            order_id:
+              type: string
+            actual_end:
+              $ref: '#/components/schemas/DateTime'
+            transferred_to:
+              type: string
+              enum: [STATION_EQUIPMENT, TRUNK_CABLE]
+              description: Станционное оборудование или магистральный кабель
+    StaffUnavailableEvent:
+      allOf:
+        - $ref: '#/components/schemas/EventBase'
+        - type: object
+          required: [type, staff_id, reason]
+          properties:
+            type:
+              type: string
+              enum: [STAFF_UNAVAILABLE]
+            staff_id:
+              type: string
+            until:
+              allOf:
+                - $ref: '#/components/schemas/DateTime'
+              nullable: true
+              description: Конец недоступности; `null` или отсутствует — до конца смены. После `until` сотрудник продолжает смену из своего СЦ
+            reason:
+              type: string
+              enum: [VEHICLE_BREAKDOWN, ILLNESS, OTHER]
+    TimeTickEvent:
+      allOf:
+        - $ref: '#/components/schemas/EventBase'
+        - type: object
+          required: [type]
+          properties:
+            type:
+              type: string
+              enum: [TIME_TICK]
+    Event:
+      oneOf:
+        - $ref: '#/components/schemas/NewOrderEvent'
+        - $ref: '#/components/schemas/OrderCancelledEvent'
+        - $ref: '#/components/schemas/VisitDelayedEvent'
+        - $ref: '#/components/schemas/OrderTransferredEvent'
+        - $ref: '#/components/schemas/StaffUnavailableEvent'
+        - $ref: '#/components/schemas/TimeTickEvent'
+      discriminator:
+        propertyName: type
+        mapping:
+          NEW_ORDER: '#/components/schemas/NewOrderEvent'
+          ORDER_CANCELLED: '#/components/schemas/OrderCancelledEvent'
+          VISIT_DELAYED: '#/components/schemas/VisitDelayedEvent'
+          ORDER_TRANSFERRED: '#/components/schemas/OrderTransferredEvent'
+          STAFF_UNAVAILABLE: '#/components/schemas/StaffUnavailableEvent'
+          TIME_TICK: '#/components/schemas/TimeTickEvent'
+
+    EventResult:
+      type: object
+      required: [event_id, accepted, duplicate, plan_version, as_of]
+      properties:
+        event_id:
+          type: string
+        accepted:
+          type: boolean
+        duplicate:
+          type: boolean
+          description: Событие с таким `event_id` уже было принято, состояние не изменилось
+        plan_version:
+          type: integer
+          minimum: 1
+        as_of:
+          $ref: '#/components/schemas/DateTime'
+        processing_ms:
+          type: integer
+          minimum: 0
+        changed_staff_ids:
+          type: array
+          description: Сотрудники, чьи маршруты изменились (справочно)
+          items:
+            type: string
+        new_alerts:
+          type: array
+          description: Предупреждения, созданные при обработке события
+          items:
+            $ref: '#/components/schemas/Alert'
+        message:
+          type: string
+
+    # ---------- сценарий событий (файл, не API) ----------
+    EventScenarioFile:
+      type: object
+      description: |
+        Сценарий дня для оркестратора (`events_example.json` и скрытые сценарии).
+        `events` отправляются в `POST /events` как есть, в порядке `timestamp`.
+        `triggers` привязаны к визиту по наряду, а исполнитель и время визита у каждой команды
+        свои, поэтому оркестратор превращает триггер в событие по текущему плану команды:
+        `timestamp = VISIT.start + fire_after_start_min`, `staff_id` — исполнитель из плана.
+        Перед отправкой каждого события из `events` оркестратор отправляет сработавшие к этому
+        моменту триггеры. Если наряд к моменту срабатывания не в маршруте, триггер пропускается.
+      required: [date, now, events, triggers]
+      properties:
+        date:
+          type: string
+          format: date
+        now:
+          $ref: '#/components/schemas/DateTime'
+        events:
+          type: array
+          items:
+            $ref: '#/components/schemas/Event'
+        triggers:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScenarioTrigger'
+    ScenarioTrigger:
+      type: object
+      required: [trigger_id, type, order_id, fire_after_start_min]
+      properties:
+        trigger_id:
+          type: string
+          example: TR-20261026-01
+        type:
+          type: string
+          enum: [VISIT_DELAYED, ORDER_TRANSFERRED]
+        order_id:
+          type: string
+        fire_after_start_min:
+          type: integer
+          minimum: 0
+          description: Через сколько минут после начала визита наступает событие
+        extra_duration_min:
+          type: integer
+          minimum: 1
+          nullable: true
+          description: Для `VISIT_DELAYED` — `expected_end = VISIT.start + duration_min + extra_duration_min`
+        transferred_to:
+          type: string
+          enum: [STATION_EQUIPMENT, TRUNK_CABLE]
+          nullable: true
+          description: Для `ORDER_TRANSFERRED` — `actual_end = timestamp`
+
+    # ---------- служебные ----------
+    Health:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [ok]
+        team:
+          type: string
+        version:
+          type: string
+    LoadResult:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [loaded]
+        counts:
+          type: object
+          description: Сколько объектов принято
+          additionalProperties:
+            type: integer
+            minimum: 0
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              description: Машинный код ошибки, например `BAD_REQUEST`, `REFERENCE_NOT_LOADED`, `EVENT_OUT_OF_ORDER`, `UNKNOWN_ORDER`
+            message:
+              type: string
+            details:
+              type: array
+              items:
+                type: object
+                required: [message]
+                properties:
+                  field:
+                    type: string
+                  message:
+                    type: string
+
+  examples:
+    ReferenceDataExample:
+      summary: Справочники (сокращённо)
+      value:
+        service_centers:
+          - service_center_id: SC-01
+            name: СЦ «Север»
+            address: г. Екатеринбург, ул. Победы, 30
+            lat: 56.8941
+            lon: 60.6105
+            opening_hours:
+              open: '08:00'
+              close: '21:00'
+            restock_duration_min: 15
+        staff:
+          - staff_id: ST-001
+            display_name: Монтажник 001
+            service_center_id: SC-01
+            profiles: [LTP3]
+            technologies: [PON, FTTB, XDSL]
+            height_permit: false
+            shift:
+              start: '09:00'
+              end: '18:00'
+              break_duration_min: 60
+              break_window:
+                from: '12:00'
+                to: '15:00'
+            equipment_start:
+              ONT: 3
+              ROUTER: 4
+              STB: 2
+            equipment_capacity:
+              ONT: 6
+              ROUTER: 6
+              STB: 4
+            experience_years: 4.5
+          - staff_id: ST-029
+            display_name: Инсталлятор 029
+            service_center_id: SC-01
+            profiles: [INSTALL]
+            technologies: [PON, FTTB]
+            height_permit: true
+            shift:
+              start: '12:00'
+              end: '21:00'
+              break_duration_min: 60
+              break_window:
+                from: '15:00'
+                to: '18:00'
+            equipment_start:
+              ONT: 4
+              ROUTER: 5
+              STB: 3
+            equipment_capacity:
+              ONT: 6
+              ROUTER: 6
+              STB: 4
+        access_nodes:
+          - access_node_id: AN-0031
+            node_type: OLT
+            technology: PON
+            name: OLT Пионерский-2
+            address: г. Екатеринбург, ул. Учителей, 22
+            lat: 56.8698
+            lon: 60.651
+            buildings:
+              - building_id: B-00412
+                address: г. Екатеринбург, ул. Учителей, 18
+                lat: 56.8712
+                lon: 60.6531
+                building_type: MKD
+                overhead_line: false
+                zone_service_center_id: SC-01
+              - building_id: B-00415
+                address: г. Екатеринбург, ул. Уральская, 61
+                lat: 56.8655
+                lon: 60.6493
+                building_type: MKD
+                overhead_line: false
+                zone_service_center_id: SC-01
+        work_types:
+          - code: REPAIR
+            name: Устранение неисправности (обращение абонента)
+            profiles: [LTP3]
+            duration_min: 60
+            max_start_delay_min: null
+            deadline_kind: HOURS
+            deadline_value: 24
+            repeat_deadline_value: 12
+            pgp_relevant: true
+          - code: INST_PON_MKD
+            name: Инсталляция ШПД/IPTV, МКД, PON
+            profiles: [INSTALL]
+            duration_min: 90
+            max_start_delay_min: 10
+            deadline_kind: WORKING_DAYS
+            deadline_value: 3
+            repeat_deadline_value: null
+            pgp_relevant: false
+
+    TravelMatrixExample:
+      summary: Матрица на три точки
+      value:
+        matrix_id: ekb-2026-10-v1
+        points: [SC-01, B-00412, B-00415]
+        durations_sec:
+          - [0, 1080, 1200]
+          - [1110, 0, 240]
+          - [1230, 260, 0]
+        distances_m:
+          - [0, 4620, 5100]
+          - [4700, 0, 780]
+          - [5150, 820, 0]
+        hourly_factors:
+          - hour: 8
+            factor: 1.35
+          - hour: 13
+            factor: 1.1
+
+    DayInputExample:
+      summary: Наряды дня (сокращённо)
+      value:
+        date: '2026-10-26'
+        now: '2026-10-26T08:30:00+05:00'
+        absent_staff_ids: [ST-017]
+        orders:
+          - order_id: ORD-20261026-0001
+            work_type_code: REPAIR
+            technology: PON
+            building_id: B-00412
+            address: г. Екатеринбург, ул. Учителей, 18
+            lat: 56.8712
+            lon: 60.6531
+            building_type: MKD
+            requires_height: false
+            access_node_id: AN-0031
+            registered_at: '2026-10-25T18:40:00+05:00'
+            slot:
+              start: '2026-10-26T09:00:00+05:00'
+              end: '2026-10-26T11:00:00+05:00'
+            latest_start: '2026-10-26T11:00:00+05:00'
+            deadline: '2026-10-26T18:40:00+05:00'
+            required_equipment:
+              ONT: 1
+              ROUTER: 0
+              STB: 0
+            is_repeat: false
+            previous_order_id: null
+          - order_id: ORD-20261026-0042
+            work_type_code: INST_PON_MKD
+            technology: PON
+            building_id: B-00415
+            address: г. Екатеринбург, ул. Уральская, 61
+            lat: 56.8655
+            lon: 60.6493
+            building_type: MKD
+            requires_height: false
+            access_node_id: AN-0031
+            registered_at: '2026-10-22T14:12:00+05:00'
+            slot:
+              start: '2026-10-26T13:00:00+05:00'
+              end: '2026-10-26T15:00:00+05:00'
+            latest_start: '2026-10-26T13:10:00+05:00'
+            deadline: '2026-10-27T14:12:00+05:00'
+            required_equipment:
+              ONT: 1
+              ROUTER: 1
+              STB: 1
+            is_repeat: false
+            previous_order_id: null
+
+    PlanExample:
+      summary: План с одним маршрутом (сокращённо)
+      value:
+        date: '2026-10-26'
+        plan_version: 1
+        based_on_event_id: null
+        as_of: '2026-10-26T08:30:00+05:00'
+        computation_ms: 41250
+        routes:
+          - staff_id: ST-001
+            service_center_id: SC-01
+            status: ACTIVE
+            unavailable_from: null
+            unavailable_until: null
+            stops:
+              - seq: 1
+                type: DEPOT_START
+                location_id: SC-01
+                order_id: null
+                arrival: '2026-10-26T09:00:00+05:00'
+                start: '2026-10-26T09:00:00+05:00'
+                end: '2026-10-26T09:00:00+05:00'
+                travel_sec: 0
+                status: PLANNED
+                equipment_after:
+                  ONT: 3
+                  ROUTER: 4
+                  STB: 2
+              - seq: 2
+                type: VISIT
+                location_id: B-00412
+                order_id: ORD-20261026-0001
+                arrival: '2026-10-26T09:18:00+05:00'
+                start: '2026-10-26T09:18:00+05:00'
+                end: '2026-10-26T10:18:00+05:00'
+                travel_sec: 1080
+                distance_m: 4620
+                status: PLANNED
+                equipment_after:
+                  ONT: 2
+                  ROUTER: 4
+                  STB: 2
+                explanation: Ближайший сотрудник 3ЛТП с PON; запас до конца слота 102 мин
+              - seq: 3
+                type: VISIT
+                location_id: B-00415
+                order_id: ORD-20261026-0007
+                arrival: '2026-10-26T10:22:00+05:00'
+                start: '2026-10-26T11:00:00+05:00'
+                end: '2026-10-26T11:45:00+05:00'
+                travel_sec: 240
+                distance_m: 780
+                status: PLANNED
+                equipment_after:
+                  ONT: 2
+                  ROUTER: 3
+                  STB: 2
+              - seq: 4
+                type: BREAK
+                location_id: B-00415
+                order_id: null
+                arrival: '2026-10-26T11:45:00+05:00'
+                start: '2026-10-26T12:00:00+05:00'
+                end: '2026-10-26T13:00:00+05:00'
+                travel_sec: 0
+                status: PLANNED
+              - seq: 5
+                type: RESTOCK
+                location_id: SC-01
+                order_id: null
+                arrival: '2026-10-26T13:20:30+05:00'
+                start: '2026-10-26T13:20:30+05:00'
+                end: '2026-10-26T13:35:30+05:00'
+                travel_sec: 1230
+                distance_m: 5150
+                status: PLANNED
+                equipment_after:
+                  ONT: 6
+                  ROUTER: 6
+                  STB: 4
+              - seq: 6
+                type: VISIT
+                location_id: B-00412
+                order_id: ORD-20261026-0019
+                arrival: '2026-10-26T13:53:30+05:00'
+                start: '2026-10-26T13:53:30+05:00'
+                end: '2026-10-26T14:53:30+05:00'
+                travel_sec: 1080
+                distance_m: 4620
+                status: PLANNED
+                equipment_after:
+                  ONT: 5
+                  ROUTER: 5
+                  STB: 4
+              - seq: 7
+                type: DEPOT_END
+                location_id: SC-01
+                order_id: null
+                arrival: '2026-10-26T15:12:00+05:00'
+                start: '2026-10-26T15:12:00+05:00'
+                end: '2026-10-26T15:12:00+05:00'
+                travel_sec: 1110
+                distance_m: 4700
+                status: PLANNED
+            totals:
+              visits: 3
+              travel_sec: 4740
+              distance_m: 19870
+              work_min: 165
+              utilization: 0.508
+        unassigned:
+          - order_id: ORD-20261026-0233
+            reason_code: NO_QUALIFIED_STAFF
+            reason_text: На смене нет свободного сотрудника с допуском к работам на высоте и технологией PON
+            suggested_action: RESCHEDULE
+            proposed_slot:
+              start: '2026-10-27T09:00:00+05:00'
+              end: '2026-10-27T11:00:00+05:00'
+            since: '2026-10-26T08:30:00+05:00'
+        pgp_groups:
+          - group_id: PGP-20261026-01
+            access_node_id: AN-0057
+            order_ids: [ORD-20261026-0390, ORD-20261026-0391, ORD-20261026-0393]
+            detected_at: '2026-10-26T08:30:00+05:00'
+            action: TRANSFER_TO_STATION
+            comment: 3 обращения с OLT Втузгородок-1 за 35 минут
+        cancelled: []
+        alerts:
+          - alert_id: ALR-20261026-0001
+            created_at: '2026-10-26T08:30:00+05:00'
+            type: PGP_DETECTED
+            status: ACTIVE
+            resolved_at: null
+            order_id: null
+            group_id: PGP-20261026-01
+            staff_id: null
+            forecast_start: null
+            lateness_min: null
+            suggested_action: TRANSFER_TO_STATION
+            suggested_staff_id: null
+            proposed_slot: null
+            applied: true
+            message: ПГП на AN-0057, 3 наряда переданы в станционное подразделение
+        summary:
+          orders_total: 384
+          visits_planned: 351
+          unassigned: 21
+          pgp_orders: 12
+          cancelled: 0
+          travel_sec_total: 512340
+          utilization_cv: 0.14
+
+    NewOrderEventExample:
+      summary: Новый повторный наряд на неисправность
+      value:
+        event_id: EV-20261026-0012
+        type: NEW_ORDER
+        timestamp: '2026-10-26T10:05:00+05:00'
+        order:
+          order_id: ORD-20261026-0417
+          work_type_code: REPAIR
+          technology: FTTB
+          building_id: B-00877
+          address: г. Екатеринбург, ул. Кировградская, 44
+          lat: 56.9052
+          lon: 60.5874
+          building_type: MKD
+          requires_height: false
+          access_node_id: AN-0102
+          registered_at: '2026-10-26T10:05:00+05:00'
+          slot:
+            start: '2026-10-26T13:00:00+05:00'
+            end: '2026-10-26T15:00:00+05:00'
+          latest_start: '2026-10-26T15:00:00+05:00'
+          deadline: '2026-10-26T22:05:00+05:00'
+          required_equipment:
+            ONT: 0
+            ROUTER: 1
+            STB: 0
+          is_repeat: true
+          previous_order_id: ORD-20261021-0233
+    OrderCancelledEventExample:
+      summary: Абонент не подтвердил визит
+      value:
+        event_id: EV-20261026-0021
+        type: ORDER_CANCELLED
+        timestamp: '2026-10-26T12:15:00+05:00'
+        order_id: ORD-20261026-0145
+        reason: NOT_CONFIRMED
+    VisitDelayedEventExample:
+      summary: Задержка на объекте
+      value:
+        event_id: EV-20261026-0004
+        type: VISIT_DELAYED
+        timestamp: '2026-10-26T09:50:00+05:00'
+        staff_id: ST-001
+        order_id: ORD-20261026-0001
+        expected_end: '2026-10-26T10:45:00+05:00'
+    OrderTransferredEventExample:
+      summary: Повреждение на станционном оборудовании
+      value:
+        event_id: EV-20261026-0027
+        type: ORDER_TRANSFERRED
+        timestamp: '2026-10-26T13:25:00+05:00'
+        staff_id: ST-007
+        order_id: ORD-20261026-0123
+        actual_end: '2026-10-26T13:25:00+05:00'
+        transferred_to: STATION_EQUIPMENT
+    StaffUnavailableEventExample:
+      summary: Поломка автомобиля
+      value:
+        event_id: EV-20261026-0016
+        type: STAFF_UNAVAILABLE
+        timestamp: '2026-10-26T11:10:00+05:00'
+        staff_id: ST-014
+        until: null
+        reason: VEHICLE_BREAKDOWN
+    TimeTickEventExample:
+      summary: Ход модельного времени
+      value:
+        event_id: EV-20261026-0017
+        type: TIME_TICK
+        timestamp: '2026-10-26T11:15:00+05:00'
+    EventResultExample:
+      summary: Ответ на STAFF_UNAVAILABLE
+      value:
+        event_id: EV-20261026-0016
+        accepted: true
+        duplicate: false
+        plan_version: 17
+        as_of: '2026-10-26T11:10:00+05:00'
+        processing_ms: 2140
+        changed_staff_ids: [ST-014, ST-003, ST-011]
+        new_alerts:
+          - alert_id: ALR-20261026-0007
+            created_at: '2026-10-26T11:10:00+05:00'
+            type: LATE_RISK
+            status: RESOLVED
+            resolved_at: '2026-10-26T11:10:00+05:00'
+            order_id: ORD-20261026-0188
+            group_id: null
+            staff_id: ST-014
+            forecast_start: null
+            lateness_min: null
+            suggested_action: REASSIGN
+            suggested_staff_id: ST-003
+            proposed_slot: null
+            applied: true
+            message: ST-014 выбыл, визит по ORD-20261026-0188 передан ST-003
+        message: Перераспределено 4 наряда ST-014
