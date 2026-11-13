@@ -20,6 +20,9 @@ type Visit struct {
 	PlannedArrival time.Time
 	PlannedEnd     time.Time
 	TravelMin      int
+	IsAtRisk       bool
+	RiskReason     string
+	Recommendation string
 }
 
 // BuildPlan строит базовый план на день (жадная вставка)
@@ -93,35 +96,43 @@ func isQualified(staff model.Staff, order model.Order) bool {
 
 // tryInsert пытается вставить наряд в маршрут с учетом времени и слотов
 func tryInsert(route *Route, order model.Order, planDate time.Time) (bool, Visit) {
-	// Начинаем с начала смены сотрудника
 	currentTime := geo.ParseTime(planDate, route.Staff.ShiftStart)
 	currentLat := route.Staff.ServiceCenter.Lat
 	currentLon := route.Staff.ServiceCenter.Lon
 
-	// Проходим по текущим визитам, чтобы дойти до конца маршрута
 	for _, v := range route.Visits {
 		currentTime = v.PlannedEnd
 		currentLat = v.Order.Lat
 		currentLon = v.Order.Lon
 	}
 
-	// Считаем время в пути до нового наряда
 	travelMin := geo.TravelTimeMin(currentLat, currentLon, order.Lat, order.Lon)
 	arrivalTime := currentTime.Add(time.Duration(travelMin) * time.Minute)
 
-	// Проверка: успеваем ли мы в слот?
 	if arrivalTime.Before(order.SlotStart) {
-		arrivalTime = order.SlotStart // Ждем начала слота
+		arrivalTime = order.SlotStart
 	}
 	if arrivalTime.After(order.SlotEnd) {
-		return false, Visit{} // Не успеваем в слот
+		return false, Visit{}
 	}
 
-	// Проверка: хватает ли смены?
 	endTime := arrivalTime.Add(time.Duration(order.WorkType.DurationMin) * time.Minute)
 	shiftEnd := geo.ParseTime(planDate, route.Staff.ShiftEnd)
 	if endTime.After(shiftEnd) {
-		return false, Visit{} // Рабочий день закончился
+		return false, Visit{}
+	}
+
+	// --- НОВАЯ ЛОГИКА РИСК-МОНИТОРА ---
+	isAtRisk := false
+	riskReason := ""
+	recommendation := ""
+
+	// Если приезжаем в слот, но до конца слота остается меньше 30 минут — это риск
+	// (Математика: время прибытия + норматив работы > конец слота)
+	if endTime.After(order.SlotEnd.Add(-30 * time.Minute)) {
+		isAtRisk = true
+		riskReason = "Визит может выйти за границы слота. Высокий риск опоздания."
+		recommendation = "transfer" // Рекомендуем передать другому сотруднику
 	}
 
 	return true, Visit{
@@ -129,6 +140,9 @@ func tryInsert(route *Route, order model.Order, planDate time.Time) (bool, Visit
 		PlannedArrival: arrivalTime,
 		PlannedEnd:     endTime,
 		TravelMin:      travelMin,
+		IsAtRisk:       isAtRisk,
+		RiskReason:     riskReason,
+		Recommendation: recommendation,
 	}
 }
 
@@ -160,6 +174,9 @@ func SavePlanToDB(db *gorm.DB, routes []Route, unassigned []model.Order, planDat
 				PlannedArrival: v.PlannedArrival,
 				PlannedEnd:     v.PlannedEnd,
 				VisitType:      "order",
+				IsAtRisk:       v.IsAtRisk,
+				RiskReason:     v.RiskReason,
+				Recommendation: v.Recommendation,
 			}
 			db.Create(&visit)
 		}

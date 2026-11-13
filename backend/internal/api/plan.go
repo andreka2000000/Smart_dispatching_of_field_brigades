@@ -6,6 +6,7 @@ import (
 
 	"github.com/andreka2000000/Smart_dispatching_of_field_brigades/backend/internal/model"
 	models "github.com/andreka2000000/Smart_dispatching_of_field_brigades/backend/internal/model"
+	"github.com/andreka2000000/Smart_dispatching_of_field_brigades/backend/internal/pgp"
 	"github.com/andreka2000000/Smart_dispatching_of_field_brigades/backend/internal/planner"
 	"github.com/andreka2000000/Smart_dispatching_of_field_brigades/backend/internal/store"
 	"github.com/gin-gonic/gin"
@@ -23,9 +24,22 @@ func BuildPlan(c *gin.Context) {
 		return
 	}
 
-	planDate := time.Now()
-	routes, unassigned := planner.BuildPlan(orders, staff, planDate)
+	// 1. ВЫЗЫВАЕМ ДЕТЕКТОР ПГП
+	pgpOrderIDs := pgp.DetectPGP(store.DB, orders)
 
+	// 2. ОТФИЛЬТРОВЫВАЕМ ПГП-заявки (они не идут в планировщик)
+	var ordersForPlanner []model.Order
+	for _, o := range orders {
+		if !pgpOrderIDs[o.ID] {
+			ordersForPlanner = append(ordersForPlanner, o)
+		}
+	}
+
+	// 3. СТРОИМ ПЛАН ТОЛЬКО ДЛЯ ОСТАВШИХСЯ
+	planDate := time.Now()
+	routes, unassigned := planner.BuildPlan(ordersForPlanner, staff, planDate)
+
+	// 4. СОХРАНЯЕМ
 	plan, err := planner.SavePlanToDB(store.DB, routes, unassigned, planDate, "initial")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка сохранения: " + err.Error()})
@@ -33,9 +47,10 @@ func BuildPlan(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message": "План успешно построен и сохранен",
-		"plan_id": plan.ID,
-		"routes":  routes,
+		"message":    "План построен",
+		"plan_id":    plan.ID,
+		"routes":     routes,
+		"unassigned": unassigned,
 	})
 }
 
