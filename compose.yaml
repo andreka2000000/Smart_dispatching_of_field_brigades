@@ -1,0 +1,60 @@
+name: magistral
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: magistral
+      POSTGRES_USER: magistral
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-magistral_local}
+    ports:
+      - '127.0.0.1:${POSTGRES_PORT:-15432}:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U magistral -d magistral']
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    restart: unless-stopped
+  api:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      DATABASE_URL: postgres://magistral:${POSTGRES_PASSWORD:-magistral_local}@postgres:5432/magistral?sslmode=disable
+      HTTP_ADDR: :8080
+    ports:
+      - '127.0.0.1:${API_PORT:-8080}:8080'
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD', 'wget', '-q', '-O', '/dev/null', 'http://127.0.0.1:8080/api/v1/health']
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    restart: unless-stopped
+  tests:
+    profiles: [test]
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+      target: test
+    environment:
+      TEST_DATABASE_URL: postgres://magistral:${POSTGRES_PASSWORD:-magistral_local}@postgres:5432/magistral?sslmode=disable
+    depends_on:
+      postgres:
+        condition: service_healthy
+  seed:
+    profiles: [demo]
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    entrypoint: [/app/seed]
+    environment:
+      API_URL: http://api:8080
+    depends_on:
+      api:
+        condition: service_healthy
+volumes:
+  postgres_data:
