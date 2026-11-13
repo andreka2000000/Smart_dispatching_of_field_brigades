@@ -1,0 +1,44 @@
+{
+  "name": "magistral-frontend",
+  "version": "1.0.0",
+  "description": "Magistral Next.js frontend",
+  "scripts": {
+    "dev": "next dev --hostname 127.0.0.1",
+    "build": "next build",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "generate:api": "openapi-typescript contracts/api_spec.yaml -o src/shared/api/schema.d.ts",
+    "check": "npm run typecheck && npm run lint && npm run test && npm run build",
+    "start": "next start --hostname 127.0.0.1"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.107.1",
+    "lucide-react": "^1.72.0",
+    "maplibre-gl": "^6.18.0",
+    "next": "^16.4.6",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "eslint": "^10.14.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.14.0",
+    "openapi-typescript": "^7.13.0",
+    "prettier": "^3.10.1",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.72.2",
+    "vitest": "^5.1.0"
+  },
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24 <25"
+  }
+}
