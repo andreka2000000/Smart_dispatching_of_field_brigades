@@ -1,4 +1,4 @@
-import { Dispatcher } from '@/features/dispatch/dispatcher';
+import { LandingPage } from '@/features/marketing/landing-page';
 export default function Page() {
-  return <Dispatcher />;
+  return <LandingPage />;
 }

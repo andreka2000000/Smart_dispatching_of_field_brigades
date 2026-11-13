@@ -1,9 +1,11 @@
 import Link from 'next/link';
 export default function NotFound() {
   return (
-    <div className="page-content">
+    <main style={{ padding: '80px 24px', textAlign: 'center' }}>
       <h1>Страница не найдена</h1>
-      <Link href="/">Вернуться в диспетчерскую</Link>
-    </div>
+      <p style={{ marginTop: 20 }}>
+        <Link href="/">Вернуться на главную</Link>
+      </p>
+    </main>
   );
 }

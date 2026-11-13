@@ -1,4 +1,4 @@
-import { Technician } from '@/features/technician/technician';
+import { redirect } from 'next/navigation';
 export default function Page() {
-  return <Technician />;
+  redirect('/app/technician');
 }

@@ -4,9 +4,9 @@ import { usePathname } from 'next/navigation';
 import { LayoutDashboard, Smartphone, SlidersHorizontal, Route } from 'lucide-react';
 import { config } from '@/shared/config';
 const links = [
-  { href: '/', label: 'Диспетчерская', icon: LayoutDashboard },
-  { href: '/technician', label: 'Приложение мастера', icon: Smartphone },
-  { href: '/admin', label: 'Админ-панель', icon: SlidersHorizontal },
+  { href: '/app/dispatch', label: 'Диспетчерская', icon: LayoutDashboard },
+  { href: '/app/technician', label: 'Приложение мастера', icon: Smartphone },
+  { href: '/app/admin', label: 'Админ-панель', icon: SlidersHorizontal },
 ];
 export function AppShell({ children }: { children: React.ReactNode }) {
   const path = usePathname();
