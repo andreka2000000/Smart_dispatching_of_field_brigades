@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { describe, it, expect } from 'vitest';
 import type { Snapshot } from './types';
 import { ordersView, locationPoints, fromLocal, localInput } from './model';
-const fixture = (name: string) => JSON.parse(readFileSync(`backend/testdata/${name}.json`, 'utf8'));
+const fixture = (name: string) => JSON.parse(readFileSync(new URL(`./__fixtures__/${name}.json`, import.meta.url), 'utf8'));
 function data(): Snapshot {
   return {
     reference: fixture('reference'),

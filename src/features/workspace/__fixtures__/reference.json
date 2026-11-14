@@ -1,0 +1,143 @@
+{
+  "service_centers": [
+    {
+      "service_center_id": "SC-01",
+      "name": "СЦ «Север»",
+      "address": "г. Екатеринбург, ул. Победы, 30",
+      "lat": 56.8941,
+      "lon": 60.6105,
+      "opening_hours": {
+        "open": "08:00",
+        "close": "21:00"
+      },
+      "restock_duration_min": 15
+    }
+  ],
+  "staff": [
+    {
+      "staff_id": "ST-001",
+      "display_name": "Монтажник 001",
+      "service_center_id": "SC-01",
+      "profiles": [
+        "LTP3"
+      ],
+      "technologies": [
+        "PON",
+        "FTTB",
+        "XDSL"
+      ],
+      "height_permit": false,
+      "shift": {
+        "start": "09:00",
+        "end": "18:00",
+        "break_duration_min": 60,
+        "break_window": {
+          "from": "12:00",
+          "to": "15:00"
+        }
+      },
+      "equipment_start": {
+        "ONT": 3,
+        "ROUTER": 4,
+        "STB": 2
+      },
+      "equipment_capacity": {
+        "ONT": 6,
+        "ROUTER": 6,
+        "STB": 4
+      },
+      "experience_years": 4.5
+    },
+    {
+      "staff_id": "ST-029",
+      "display_name": "Инсталлятор 029",
+      "service_center_id": "SC-01",
+      "profiles": [
+        "INSTALL"
+      ],
+      "technologies": [
+        "PON",
+        "FTTB"
+      ],
+      "height_permit": true,
+      "shift": {
+        "start": "12:00",
+        "end": "21:00",
+        "break_duration_min": 60,
+        "break_window": {
+          "from": "15:00",
+          "to": "18:00"
+        }
+      },
+      "equipment_start": {
+        "ONT": 4,
+        "ROUTER": 5,
+        "STB": 3
+      },
+      "equipment_capacity": {
+        "ONT": 6,
+        "ROUTER": 6,
+        "STB": 4
+      }
+    }
+  ],
+  "access_nodes": [
+    {
+      "access_node_id": "AN-0031",
+      "node_type": "OLT",
+      "technology": "PON",
+      "name": "OLT Пионерский-2",
+      "address": "г. Екатеринбург, ул. Учителей, 22",
+      "lat": 56.8698,
+      "lon": 60.651,
+      "buildings": [
+        {
+          "building_id": "B-00412",
+          "address": "г. Екатеринбург, ул. Учителей, 18",
+          "lat": 56.8712,
+          "lon": 60.6531,
+          "building_type": "MKD",
+          "overhead_line": false,
+          "zone_service_center_id": "SC-01"
+        },
+        {
+          "building_id": "B-00415",
+          "address": "г. Екатеринбург, ул. Уральская, 61",
+          "lat": 56.8655,
+          "lon": 60.6493,
+          "building_type": "MKD",
+          "overhead_line": false,
+          "zone_service_center_id": "SC-01"
+        }
+      ]
+    }
+  ],
+  "work_types": [
+    {
+      "code": "REPAIR",
+      "name": "Устранение неисправности (обращение абонента)",
+      "profiles": [
+        "LTP3"
+      ],
+      "duration_min": 60,
+      "max_start_delay_min": null,
+      "deadline_kind": "HOURS",
+      "deadline_value": 24,
+      "repeat_deadline_value": 12,
+      "pgp_relevant": true
+    },
+    {
+      "code": "INST_PON_MKD",
+      "name": "Инсталляция ШПД/IPTV, МКД, PON",
+      "profiles": [
+        "INSTALL"
+      ],
+      "duration_min": 90,
+      "max_start_delay_min": 10,
+      "deadline_kind": "WORKING_DAYS",
+      "deadline_value": 3,
+      "repeat_deadline_value": null,
+      "pgp_relevant": false
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "date": "2026-10-26",
+  "now": "2026-10-26T08:30:00+05:00",
+  "absent_staff_ids": [],
+  "orders": [
+    {
+      "order_id": "ORD-20261026-0001",
+      "work_type_code": "REPAIR",
+      "technology": "PON",
+      "building_id": "B-00412",
+      "address": "г. Екатеринбург, ул. Учителей, 18",
+      "lat": 56.8712,
+      "lon": 60.6531,
+      "building_type": "MKD",
+      "requires_height": false,
+      "access_node_id": "AN-0031",
+      "registered_at": "2026-10-25T18:40:00+05:00",
+      "slot": {
+        "start": "2026-10-26T09:00:00+05:00",
+        "end": "2026-10-26T11:00:00+05:00"
+      },
+      "latest_start": "2026-10-26T11:00:00+05:00",
+      "deadline": "2026-10-26T18:40:00+05:00",
+      "required_equipment": {
+        "ONT": 1,
+        "ROUTER": 0,
+        "STB": 0
+      },
+      "is_repeat": false,
+      "previous_order_id": null
+    },
+    {
+      "order_id": "ORD-20261026-0042",
+      "work_type_code": "INST_PON_MKD",
+      "technology": "PON",
+      "building_id": "B-00415",
+      "address": "г. Екатеринбург, ул. Уральская, 61",
+      "lat": 56.8655,
+      "lon": 60.6493,
+      "building_type": "MKD",
+      "requires_height": false,
+      "access_node_id": "AN-0031",
+      "registered_at": "2026-10-22T14:12:00+05:00",
+      "slot": {
+        "start": "2026-10-26T13:00:00+05:00",
+        "end": "2026-10-26T15:00:00+05:00"
+      },
+      "latest_start": "2026-10-26T13:10:00+05:00",
+      "deadline": "2026-10-27T14:12:00+05:00",
+      "required_equipment": {
+        "ONT": 1,
+        "ROUTER": 1,
+        "STB": 1
+      },
+      "is_repeat": false,
+      "previous_order_id": null
+    }
+  ]
+}
