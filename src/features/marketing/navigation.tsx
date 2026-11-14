@@ -10,10 +10,10 @@ export function Navigation() {
   return (
     <header className={s.header}>
       <div className={s.navInner}>
-        <Link href="/" className={s.brand} aria-label="Магистраль — главная">
+        <Link href="/" className={s.brand} aria-label="МаксТелеком — главная">
           <BrandMark />
           <span>
-            магистраль<span className={s.brandDot}>.</span>
+            МаксТелеком<span className={s.brandDot}></span>
           </span>
         </Link>
         <nav aria-label="Навигация по главной" className={`${s.navLinks} ${open ? s.navOpen : ''}`}>
@@ -26,12 +26,12 @@ export function Navigation() {
           <a href="#how-it-works" onClick={() => setOpen(false)}>
             Как это работает
           </a>
-          <Link href="/app/dispatch" className={s.mobileDemo}>
-            Открыть демо <ArrowUpRight size={15} />
+          <Link href="/app" className={s.mobileDemo}>
+            Открыть сервис <ArrowUpRight size={15} />
           </Link>
         </nav>
-        <Link href="/app/dispatch" className={s.navCta}>
-          Открыть демо <ArrowUpRight size={15} />
+        <Link href="/app" className={s.navCta}>
+          Открыть сервис <ArrowUpRight size={15} />
         </Link>
         <button
           className={s.menuButton}

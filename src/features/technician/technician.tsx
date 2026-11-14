@@ -1,11 +1,15 @@
 'use client';
 import { useState } from 'react';
+import { LiveTechnician } from '@/features/workspace/technician';
 import { Check, MapPin, WifiOff } from 'lucide-react';
 import { PageHeader } from '@/components/layout/page-header';
 import { useDemo } from '@/lib/demo-context';
 import { DispatchMap } from '@/features/map/map-panel';
 import { config } from '@/shared/config';
 export function Technician() {
+  return config.dataMode === 'api' ? <LiveTechnician /> : <DemoTechnician />;
+}
+function DemoTechnician() {
   const { orders, updateStatus } = useDemo();
   const [selected, setSelected] = useState<string | null>(null);
   const [offline, setOffline] = useState(false);

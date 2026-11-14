@@ -1,4 +1,4 @@
-const mode = process.env.NEXT_PUBLIC_DATA_MODE || 'mock';
+const mode = process.env.NEXT_PUBLIC_DATA_MODE || 'api';
 if (mode !== 'mock' && mode !== 'api') throw new Error('NEXT_PUBLIC_DATA_MODE must be mock or api');
 export const config = {
   dataMode: mode,

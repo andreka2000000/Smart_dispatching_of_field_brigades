@@ -1,10 +1,14 @@
 'use client';
 import { useState } from 'react';
+import { LiveAdmin } from '@/features/workspace/admin';
 import { PageHeader } from '@/components/layout/page-header';
 import { Modal } from '@/components/ui/modal';
 import { staff } from '@/lib/demo-data';
 import { config } from '@/shared/config';
 export function Admin() {
+  return config.dataMode === 'api' ? <LiveAdmin /> : <DemoAdmin />;
+}
+function DemoAdmin() {
   const [tab, setTab] = useState('Пользователи');
   const [invite, setInvite] = useState(false);
   return (

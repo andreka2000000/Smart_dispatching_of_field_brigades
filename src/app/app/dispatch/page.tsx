@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
-import { Dispatcher } from '@/features/dispatch/dispatcher';
+import { LiveDispatcher } from '@/features/workspace/dispatcher';
+import { requireUser } from '@/features/auth/server';
 export const metadata: Metadata = { title: 'Диспетчерская' };
-export default function Page() {
-  return <Dispatcher />;
+export default async function Page() {
+  await requireUser(['DISPATCHER']);
+  return <LiveDispatcher />;
 }

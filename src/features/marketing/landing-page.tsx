@@ -98,9 +98,9 @@ export function LandingPage() {
                 <span /> Умная диспетчеризация <ChevronRight size={13} />
               </a>
               <h1 id="hero-title">
-                Каждый выезд.
+                Порядок там,
                 <br />
-                <em>На своём месте.</em>
+                <em>где раньше был хаос.</em>
               </h1>
               <p>
                 Соединяем заявки, команду и маршруты.
@@ -109,8 +109,8 @@ export function LandingPage() {
                 <br className={s.desktopBreak} /> складывался в понятный план.
               </p>
               <div className={s.heroActions}>
-                <Link href="/app/dispatch" className={s.primary}>
-                  Посмотреть демо <ArrowUpRight size={17} />
+                <Link href="/app" className={s.primary}>
+                  Открыть сервис <ArrowUpRight size={17} />
                 </Link>
                 <a href="#how-it-works" className={s.secondary}>
                   Как это работает <ArrowRight size={16} />
@@ -252,7 +252,7 @@ export function LandingPage() {
               <h2>
                 Разные задачи.
                 <br />
-                <span>Одна Магистраль.</span>
+                <span>Одна команда.</span>
               </h2>
               <p>
                 Абоненту — ясность. Команде — удобные инструменты.
@@ -328,12 +328,12 @@ export function LandingPage() {
             <div className={s.faqList}>
               {[
                 {
-                  q: 'Кому подойдёт Магистраль?',
+                  q: 'Кому подойдёт МаксТелеком?',
                   a: 'Командам, которые подключают услуги, восстанавливают связь и обслуживают объекты на выезде. Абонент, диспетчер, мастер и администратор получают своё представление общего процесса.',
                 },
                 {
-                  q: 'Что можно посмотреть в демо?',
-                  a: 'Рабочее место диспетчера: список заявок, карту, команду и карточки назначений. Демо использует тестовые данные; изменения не затрагивают реальные обращения.',
+                  q: 'Что есть в рабочем пространстве?',
+                  a: 'Рабочее место диспетчера: список заявок, карту, команду и карточки назначений. В нём отображаются заявки выбранной смены. Для знакомства с сервисом доступен демонстрационный набор.',
                 },
                 {
                   q: 'Что увидит абонент?',
@@ -370,10 +370,10 @@ export function LandingPage() {
                 <br />
                 ваш следующий рабочий день.
               </p>
-              <Link href="/app/dispatch" className={s.primary}>
-                Открыть диспетчерскую <ArrowUpRight size={17} />
+              <Link href="/app" className={s.primary}>
+                Открыть сервис <ArrowUpRight size={17} />
               </Link>
-              <small>Локальное демо на тестовых данных</small>
+              <small>Единое рабочее пространство команды</small>
             </div>
           </div>
         </section>
@@ -384,7 +384,7 @@ export function LandingPage() {
             <Link href="/" className={s.brand}>
               <BrandMark />
               <span>
-                магистраль<span className={s.brandDot}>.</span>
+                МаксТелеком<span className={s.brandDot}></span>
               </span>
             </Link>
             <p>
@@ -395,13 +395,13 @@ export function LandingPage() {
             <nav aria-label="Навигация в подвале">
               <a href="#features">Возможности</a>
               <a href="#roles">Для кого</a>
-              <Link href="/app/dispatch">
+              <Link href="/app">
                 Демо <ArrowUpRight size={12} />
               </Link>
             </nav>
           </div>
           <div className={s.footerBottom}>
-            <span>© 2026 Магистраль</span>
+            <span>© 2026 МаксТелеком</span>
             <span>
               <i /> Создано для движения вперёд
             </span>

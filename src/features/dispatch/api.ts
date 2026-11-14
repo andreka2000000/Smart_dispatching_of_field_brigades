@@ -23,7 +23,7 @@ export const dispatchApi = {
   postEvent(date: string, event: Event, signal?: AbortSignal): Promise<EventResult> {
     if (config.dataMode === 'mock')
       return Promise.reject(new Error('События доступны после подключения Go API.'));
-    return request(config.apiBaseUrl, `${dayPath(date)}/events`, {
+    return request(config.apiBaseUrl, `/ui/v1/days/${encodeURIComponent(date)}/events`, {
       method: 'POST',
       body: JSON.stringify(event),
       signal,

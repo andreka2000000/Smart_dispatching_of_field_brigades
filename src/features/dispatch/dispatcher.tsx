@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { LiveDispatcher } from '@/features/workspace/dispatcher';
 import {
   Search,
   Plus,
@@ -15,55 +15,12 @@ import { Modal } from '@/components/ui/modal';
 import { useDemo } from '@/lib/demo-context';
 import { staff, type DemoOrder } from '@/lib/demo-data';
 import { config } from '@/shared/config';
-import { dispatchApi } from './api';
-import { formatModelTime } from '@/shared/time';
 import { OrderCard } from './order-card';
 import { OrderDetails } from './order-details';
 import { DispatchMap } from '@/features/map/map-panel';
 
-function ApiDispatcher() {
-  const plan = useQuery({
-    queryKey: ['plan', '2026-10-26', 'api'],
-    queryFn: ({ signal }) => dispatchApi.getPlan('2026-10-26', signal),
-  });
-  return (
-    <>
-      <PageHeader title="Диспетчерская" subtitle="Данные плана из Go API" />
-      <div className="page-content">
-        <h2>План смены</h2>
-        {plan.isPending && <p role="status">Загружаем план…</p>}
-        {plan.error && (
-          <div className="panel" role="alert">
-            <p>{plan.error.message}</p>
-            <button className="primary-button" onClick={() => void plan.refetch()}>
-              Повторить
-            </button>
-          </div>
-        )}
-        {plan.data && (
-          <div className="panel">
-            <p>
-              Модельное время {formatModelTime(plan.data.as_of)} · версия {plan.data.plan_version}
-            </p>
-            <p>
-              Маршруты: {plan.data.routes.length} · Не распределены: {plan.data.unassigned.length}
-            </p>
-            {plan.data.unassigned.map((o) => (
-              <p key={o.order_id}>
-                {o.order_id}: {o.reason_text}
-              </p>
-            ))}
-            <p className="muted">
-              Адреса и сотрудники подключаются из справочников. Демо-данные здесь не подставляются.
-            </p>
-          </div>
-        )}
-      </div>
-    </>
-  );
-}
 export function Dispatcher() {
-  return config.dataMode === 'api' ? <ApiDispatcher /> : <DemoDispatcher />;
+  return config.dataMode === 'api' ? <LiveDispatcher /> : <DemoDispatcher />;
 }
 function DemoDispatcher() {
   const { orders, activity, addOrder } = useDemo();

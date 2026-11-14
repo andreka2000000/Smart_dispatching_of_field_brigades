@@ -1,18 +1,19 @@
-# Smart_dispatching_of_field_brigades
+# МаксТелеком — frontend
 
-Frontend: Next.js App Router + React + TypeScript. Backend: Go (`backend/`).
+Next.js frontend проекта «МаксТелеком — порядок там, где раньше был хаос».
 
-```sh
-npm ci
-npm run dev
-```
+## Запуск
 
-Local frontend: http://127.0.0.1:3000. Design reference: https://dispatch-two-bay.vercel.app/.
+Требуется Node.js 24. Установите зависимости командой `npm ci`, скопируйте `.env.example` в `.env.local` и запустите `npm run dev -- --port 3001`.
 
-- `/` — Russian marketing homepage, independent of the Go API.
-- `/app/dispatch` — dispatcher demo; `/app/technician` and `/app/admin` — role workspaces.
+Сайт: http://127.0.0.1:3001. Для авторизации и рабочих экранов нужен backend из отдельной ветки `backend`, доступный по `API_PROXY_TARGET`. Учётные записи создаются средствами backend; пароли в репозитории не хранятся.
 
-- Frontend setup and backend connection: [docs/FRONTEND.md](docs/FRONTEND.md)
-- PyVRP evaluation: [docs/PYVRP.md](docs/PYVRP.md)
-- Organizer contract: [contracts/api_spec.yaml](contracts/api_spec.yaml)
-- Checks: `npm run check`
+## Проверки и сборка
+
+`npm run check` — типы, ESLint, тесты и production-сборка.
+
+`npm run build` и `npm run start -- --port 3001` — запуск production-версии.
+
+`docker build -f Dockerfile.frontend -t maxtelecom-frontend .` — Docker-сборка. При запуске контейнера задайте `API_PROXY_TARGET` адресом доступного backend и опубликуйте порт 3000.
+
+Описание frontend: [docs/FRONTEND.md](docs/FRONTEND.md).

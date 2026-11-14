@@ -117,7 +117,7 @@ export function RoleShowcase() {
               href={`/app/${active === 'dispatcher' ? 'dispatch' : active}`}
               className={s.textLink}
             >
-              Открыть демо <ArrowUpRight size={15} />
+              Открыть сервис <ArrowUpRight size={15} />
             </Link>
           )}
         </div>

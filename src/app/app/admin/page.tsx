@@ -1,4 +1,6 @@
-import { Admin } from '@/features/admin/admin';
-export default function Page() {
-  return <Admin />;
+import { LiveAdmin } from '@/features/workspace/admin';
+import { requireUser } from '@/features/auth/server';
+export default async function Page() {
+  await requireUser(['DISPATCHER']);
+  return <LiveAdmin />;
 }
