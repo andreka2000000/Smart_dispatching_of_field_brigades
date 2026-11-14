@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-require-imports -- CommonJS CLI used with the existing js-yaml dependency. */
 // Run from repository root: node backend/tools/generate.cjs
 const fs = require('node:fs');
+const process = require('node:process');
 const yaml = require('js-yaml');
 const spec = yaml.load(fs.readFileSync('contracts/api_spec.yaml', 'utf8'));
 const names = Object.keys(spec.components.schemas);
@@ -9,6 +10,15 @@ const field = s => s.split('_').map(x => x[0].toUpperCase()+x.slice(1)).join('')
 function type(s) {
   if (s.$ref) return s.$ref.split('/').pop();
   if (s.allOf?.length === 1) return type(s.allOf[0]);
+  if (s.allOf?.length > 1) {
+    const merged = { type: 'object', properties: {}, required: [] };
+    for (let part of s.allOf) {
+      if (part.$ref) part = spec.components.schemas[part.$ref.split('/').pop()];
+      Object.assign(merged.properties, part.properties);
+      merged.required.push(...(part.required || []));
+    }
+    return type(merged);
+  }
   if (s.oneOf) return 'json.RawMessage';
   switch(s.type) {
     case 'string': return 'string';
@@ -28,7 +38,11 @@ function type(s) {
   }
 }
 fs.mkdirSync('backend/internal/dto',{recursive:true});
-fs.writeFileSync('backend/internal/dto/types.gen.go','// Code generated from contracts/api_spec.yaml; DO NOT EDIT.\npackage dto\nimport "encoding/json"\n'+names.map(n=>'type '+n+' '+type(spec.components.schemas[n])).join('\n'));
+let generated='// Code generated from contracts/api_spec.yaml; DO NOT EDIT.\npackage dto\nimport "encoding/json"\n'+names.map(n=>'type '+n+' '+type(spec.components.schemas[n])).join('\n');
+// Team-owned optional response extension, kept outside the organizer contract.
+generated=generated.replace('type Plan struct {\n','type Plan struct {\nOptimization *PlanOptimization `json:"optimization,omitempty"`\n');
+fs.writeFileSync('backend/internal/dto/types.gen.go',generated);
+if (process.argv.includes('--types-only')) process.exit(0);
 fs.copyFileSync('contracts/api_spec.yaml','backend/internal/contract/api_spec.yaml');
 for(const [file,key] of [['reference','ReferenceDataExample'],['matrix','TravelMatrixExample'],['day','DayInputExample']]) {
   let value=spec.components.examples[key].value;

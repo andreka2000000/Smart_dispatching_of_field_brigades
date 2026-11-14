@@ -52,11 +52,13 @@ type World struct {
 	Orders    map[string]dto.Order
 	Work      map[dto.WorkTypeCode]dto.WorkType
 	Centers   map[string]dto.ServiceCenter
+	Groups    []dto.PgpGroup
 	// Event processing will supply these facts; the validator never infers them
 	// from a proposed plan or silently approves changed history.
 	Previous     *dto.Plan
 	EndOverrides map[string]dto.DateTime
 	NewOrderAt   map[string]dto.DateTime
+	Unavailable  map[string][]domain.Unavailability
 }
 
 func New(r dto.ReferenceData, d dto.DayInput, m dto.TravelMatrix) (*World, error) {
@@ -115,6 +117,11 @@ func (w *World) Route(r dto.Route) error {
 		}
 		if r.UnavailableFrom != nil && !b.Before(Time(*r.UnavailableFrom)) && (r.UnavailableUntil == nil || b.Before(Time(*r.UnavailableUntil))) {
 			return bad("H2", "stop during unavailability")
+		}
+		for _, period := range w.Unavailable[r.StaffId] {
+			if !b.Before(Time(period.From)) && (period.Until == nil || b.Before(Time(*period.Until))) {
+				return bad("H2", "stop during recorded unavailability")
+			}
 		}
 		if i > 0 {
 			prev := r.Stops[i-1]
@@ -196,6 +203,9 @@ func (w *World) Route(r dto.Route) error {
 func (w *World) Validate(p dto.Plan) error {
 	if p.Date != w.Day.Date || !Time(p.AsOf).Equal(Time(w.Day.Now)) || p.PlanVersion < 1 {
 		return bad("H10", "plan date/time/version mismatch")
+	}
+	if e := w.Insights(p); e != nil {
+		return e
 	}
 	counts := map[string]int{}
 	routes := map[string]dto.Route{}

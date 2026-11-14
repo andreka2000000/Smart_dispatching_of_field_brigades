@@ -153,6 +153,7 @@ func bestRoute(ctx context.Context, w *c.World, s dto.Staff, ids []string) (dto.
 }
 func reason(w *c.World, o dto.Order) (string, string) {
 	qualified, capacity := false, false
+	available, shiftTime := false, false
 	for _, s := range w.Reference.Staff {
 		if c.Has(w.Day.AbsentStaffIds, s.StaffId) {
 			continue
@@ -163,6 +164,21 @@ func reason(w *c.World, o dto.Order) (string, string) {
 		qualified = true
 		if c.Enough(s.EquipmentCapacity, o.RequiredEquipment) {
 			capacity = true
+			ready := later(c.Time(w.Day.Now), c.Local(w.Day.Date, s.Shift.Start))
+			blocked := false
+			for _, u := range w.Unavailable[s.StaffId] {
+				if u.Until == nil {
+					blocked = true
+					break
+				}
+				ready = later(ready, c.Time(*u.Until))
+			}
+			if !blocked {
+				available = true
+				if !ready.Add(time.Duration(w.Work[o.WorkTypeCode].DurationMin) * time.Minute).After(c.Local(w.Day.Date, s.Shift.End)) {
+					shiftTime = true
+				}
+			}
 		}
 	}
 	if !qualified {
@@ -171,22 +187,51 @@ func reason(w *c.World, o dto.Order) (string, string) {
 	if !capacity {
 		return "NO_EQUIPMENT", "Требуемое оборудование превышает вместимость всех подходящих сотрудников."
 	}
+	if !available {
+		return "STAFF_UNAVAILABLE", "Все подходящие сотрудники с достаточной вместимостью недоступны до конца смены."
+	}
+	if !shiftTime {
+		return "NO_SHIFT_TIME", "Даже без учёта дороги и других заданий работа не помещается в оставшееся время подходящих смен."
+	}
+	if c.Time(w.Day.Now).After(c.Time(o.LatestStart)) {
+		return "SLOT_UNREACHABLE", "Допустимое время начала визита уже истекло; новый визит нельзя назначить задним числом."
+	}
 	// Failure of a heuristic is not a proof of global infeasibility.
 	return "OTHER", "Эвристика не нашла допустимую вставку в пределах бюджета; требуется проверка диспетчером."
 }
 func Build(ctx context.Context, w *c.World) (dto.Plan, error) {
+	return buildSeeded(ctx, w, nil)
+}
+
+func buildSeeded(ctx context.Context, w *c.World, seed map[string][]string) (dto.Plan, error) {
 	p := dto.Plan{Date: w.Day.Date, PlanVersion: 1, AsOf: w.Day.Now, Routes: []dto.Route{}, Unassigned: []dto.UnassignedOrder{}, PgpGroups: []dto.PgpGroup{}, Cancelled: []dto.CancelledOrder{}, Alerts: []dto.Alert{}}
+	p.PgpGroups = append(p.PgpGroups, w.Groups...)
+	excluded := map[string]bool{}
+	for _, g := range w.Groups {
+		for _, x := range g.OrderIds {
+			excluded[x] = true
+		}
+	}
 	staff := append([]dto.Staff(nil), w.Reference.Staff...)
 	sort.Slice(staff, func(i, j int) bool { return staff[i].StaffId < staff[j].StaffId })
 	active := []dto.Staff{}
 	sequences := [][]string{}
+	assigned := map[string]bool{}
 	for _, s := range staff {
 		if c.Has(w.Day.AbsentStaffIds, s.StaffId) {
 			continue
 		}
 		active = append(active, s)
-		sequences = append(sequences, []string{})
 		r, _ := schedule(w, s, nil, 0)
+		ids := []string{}
+		for _, id := range seed[s.StaffId] {
+			trial := append(append([]string{}, ids...), id)
+			if candidate, ok := bestRoute(ctx, w, s, trial); ok {
+				ids, r = trial, candidate
+				assigned[id] = true
+			}
+		}
+		sequences = append(sequences, ids)
 		p.Routes = append(p.Routes, r)
 	}
 	orders := append([]dto.Order(nil), w.Day.Orders...)
@@ -205,8 +250,10 @@ func Build(ctx context.Context, w *c.World) (dto.Plan, error) {
 		}
 		return a.OrderId < b.OrderId
 	})
-	assigned := map[string]bool{}
 	for _, o := range orders {
+		if excluded[o.OrderId] || assigned[o.OrderId] {
+			continue
+		}
 		if ctx.Err() != nil {
 			break
 		}
@@ -251,7 +298,7 @@ func Build(ctx context.Context, w *c.World) (dto.Plan, error) {
 		}
 	}
 	for _, o := range orders {
-		if !assigned[o.OrderId] {
+		if !assigned[o.OrderId] && !excluded[o.OrderId] {
 			code, text := reason(w, o)
 			p.Unassigned = append(p.Unassigned, dto.UnassignedOrder{OrderId: o.OrderId, ReasonCode: code, ReasonText: text, SuggestedAction: "ESCALATE", Since: ptr(w.Day.Now)})
 		}
@@ -279,7 +326,7 @@ func Build(ctx context.Context, w *c.World) (dto.Plan, error) {
 	if mean > 0 {
 		cv = math.Sqrt(variance) / mean
 	}
-	p.Summary = &dto.PlanSummary{OrdersTotal: ptr(int64(len(orders))), VisitsPlanned: ptr(int64(len(assigned))), Unassigned: ptr(int64(len(p.Unassigned))), PgpOrders: ptr(int64(0)), Cancelled: ptr(int64(0)), TravelSecTotal: ptr(totalTravel), UtilizationCv: ptr(cv)}
+	p.Summary = &dto.PlanSummary{OrdersTotal: ptr(int64(len(orders))), VisitsPlanned: ptr(int64(len(assigned))), Unassigned: ptr(int64(len(p.Unassigned))), PgpOrders: ptr(int64(len(excluded))), Cancelled: ptr(int64(0)), TravelSecTotal: ptr(totalTravel), UtilizationCv: ptr(cv)}
 	if e := w.Validate(p); e != nil {
 		return dto.Plan{}, fmt.Errorf("baseline rejected: %w", e)
 	}

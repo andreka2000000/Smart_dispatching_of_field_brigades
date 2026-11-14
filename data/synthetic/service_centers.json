@@ -1,0 +1,62 @@
+[
+  {
+    "service_center_id": "SC-01",
+    "name": "Учебный СЦ «Север»",
+    "address": "Екатеринбург, учебная точка СЦ №1 (синтетическая)",
+    "lat": 56.893952,
+    "lon": 60.610302,
+    "opening_hours": {
+      "open": "08:00",
+      "close": "21:00"
+    },
+    "restock_duration_min": 15
+  },
+  {
+    "service_center_id": "SC-02",
+    "name": "Учебный СЦ «Запад»",
+    "address": "Екатеринбург, учебная точка СЦ №2 (синтетическая)",
+    "lat": 56.843972,
+    "lon": 60.5648,
+    "opening_hours": {
+      "open": "08:00",
+      "close": "21:00"
+    },
+    "restock_duration_min": 15
+  },
+  {
+    "service_center_id": "SC-03",
+    "name": "Учебный СЦ «Восток»",
+    "address": "Екатеринбург, учебная точка СЦ №3 (синтетическая)",
+    "lat": 56.846001,
+    "lon": 60.669888,
+    "opening_hours": {
+      "open": "08:00",
+      "close": "21:00"
+    },
+    "restock_duration_min": 15
+  },
+  {
+    "service_center_id": "SC-04",
+    "name": "Учебный СЦ «Юг»",
+    "address": "Екатеринбург, учебная точка СЦ №4 (синтетическая)",
+    "lat": 56.790027,
+    "lon": 60.605289,
+    "opening_hours": {
+      "open": "08:00",
+      "close": "21:00"
+    },
+    "restock_duration_min": 15
+  },
+  {
+    "service_center_id": "SC-05",
+    "name": "Учебный СЦ «Центр»",
+    "address": "Екатеринбург, учебная точка СЦ №5 (синтетическая)",
+    "lat": 56.839012,
+    "lon": 60.610996,
+    "opening_hours": {
+      "open": "08:00",
+      "close": "21:00"
+    },
+    "restock_duration_min": 15
+  }
+]

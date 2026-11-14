@@ -5,7 +5,8 @@ import (
 	"errors"
 	"magistral/backend/internal/constraints"
 	"magistral/backend/internal/dto"
-	"magistral/backend/internal/planning"
+	"magistral/backend/internal/insights"
+	"magistral/backend/internal/optimization"
 	"magistral/backend/internal/storage/postgres"
 	"time"
 )
@@ -37,6 +38,7 @@ func (s *Service) BuildPlan(ctx context.Context, date string, limit int64) (dto.
 	if e != nil {
 		return dto.Plan{}, e
 	}
+	w.Groups = insights.Detect(w, nil, map[string]dto.PgpGroup{}, nil, nil, nil)
 	// Reserve time for independent validation, serialization and commit.
 	reserve := 250 * time.Millisecond
 	if limit >= 5 {
@@ -44,10 +46,14 @@ func (s *Service) BuildPlan(ctx context.Context, date string, limit int64) (dto.
 	}
 	search, cancelSearch := context.WithDeadline(ctx, started.Add(time.Duration(limit)*time.Second-reserve))
 	defer cancelSearch()
-	p, e := planning.Build(search, w)
+	p, e := optimization.Build(search, w, s.Optimizer)
 	if e != nil {
 		return dto.Plan{}, e
 	}
+	if e = w.Validate(p); e != nil {
+		return dto.Plan{}, e
+	}
+	insights.Alerts(w, nil, nil, &p)
 	if e = w.Validate(p); e != nil {
 		return dto.Plan{}, e
 	}

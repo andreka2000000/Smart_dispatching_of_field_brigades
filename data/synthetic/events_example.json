@@ -1,0 +1,73 @@
+{
+  "date": "2026-10-28",
+  "now": "2026-10-28T08:30:00+05:00",
+  "events": [
+    {
+      "event_id": "synthetic-new-001",
+      "type": "NEW_ORDER",
+      "timestamp": "2026-10-28T09:45:00+05:00",
+      "order": {
+        "order_id": "ORD-20261028-0401",
+        "work_type_code": "REPAIR",
+        "technology": "PON",
+        "building_id": "B-00041",
+        "address": "Екатеринбург, учебный адрес №041 (синтетический)",
+        "lat": 56.882953,
+        "lon": 60.600223,
+        "building_type": "MKD",
+        "requires_height": false,
+        "access_node_id": "AN-0021",
+        "registered_at": "2026-10-28T09:45:00+05:00",
+        "slot": {
+          "start": "2026-10-28T14:00:00+05:00",
+          "end": "2026-10-28T16:00:00+05:00"
+        },
+        "latest_start": "2026-10-28T16:00:00+05:00",
+        "deadline": "2026-10-29T09:45:00+05:00",
+        "required_equipment": {
+          "ONT": 0,
+          "ROUTER": 1,
+          "STB": 0
+        },
+        "is_repeat": false,
+        "previous_order_id": null
+      }
+    },
+    {
+      "event_id": "synthetic-cancel-001",
+      "type": "ORDER_CANCELLED",
+      "timestamp": "2026-10-28T10:15:00+05:00",
+      "order_id": "ORD-20261028-0303",
+      "reason": "CUSTOMER_REQUEST"
+    },
+    {
+      "event_id": "synthetic-tick-001",
+      "type": "TIME_TICK",
+      "timestamp": "2026-10-28T11:00:00+05:00"
+    },
+    {
+      "event_id": "synthetic-unavailable-001",
+      "type": "STAFF_UNAVAILABLE",
+      "timestamp": "2026-10-28T16:00:00+05:00",
+      "staff_id": "ST-040",
+      "reason": "OTHER",
+      "until": "2026-10-28T17:00:00+05:00"
+    }
+  ],
+  "triggers": [
+    {
+      "trigger_id": "synthetic-delay-001",
+      "type": "VISIT_DELAYED",
+      "order_id": "ORD-20261028-0004",
+      "fire_after_start_min": 5,
+      "extra_duration_min": 20
+    },
+    {
+      "trigger_id": "synthetic-transfer-001",
+      "type": "ORDER_TRANSFERRED",
+      "order_id": "ORD-20261028-0005",
+      "fire_after_start_min": 10,
+      "transferred_to": "STATION_EQUIPMENT"
+    }
+  ]
+}

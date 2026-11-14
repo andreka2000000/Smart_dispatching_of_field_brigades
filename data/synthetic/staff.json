@@ -1,0 +1,1342 @@
+[
+  {
+    "staff_id": "ST-001",
+    "display_name": "Специалист ЛТП 001",
+    "service_center_id": "SC-01",
+    "profiles": [
+      "LTP3"
+    ],
+    "technologies": [
+      "PON",
+      "FTTB",
+      "XDSL",
+      "DOCSIS"
+    ],
+    "height_permit": false,
+    "shift": {
+      "start": "12:00",
+      "end": "21:00",
+      "break_duration_min": 60,
+      "break_window": {
+        "from": "15:00",
+        "to": "18:00"
+      }
+    },
+    "equipment_start": {
+      "ONT": 1,
+      "ROUTER": 1,
+      "STB": 0
+    },
+    "equipment_capacity": {
+      "ONT": 6,
+      "ROUTER": 6,
+      "STB": 4
+    },
+    "experience_years": 1
+  },
+  {
+    "staff_id": "ST-002",
+    "display_name": "Специалист ЛТП 002",
+    "service_center_id": "SC-02",
+    "profiles": [
+      "LTP3"
+    ],
+    "technologies": [
+      "FTTB",
+      "XDSL"
+    ],
+    "height_permit": true,
+    "shift": {
+      "start": "09:00",
+      "end": "18:00",
+      "break_duration_min": 60,
+      "break_window": {
+        "from": "12:00",
+        "to": "15:00"
+      }
+    },
+    "equipment_start": {
+      "ONT": 2,
+      "ROUTER": 2,
+      "STB": 1
+    },
+    "equipment_capacity": {
+      "ONT": 6,
+      "ROUTER": 6,
+      "STB": 4
+    },
+    "experience_years": 2
+  },
+  {
+    "staff_id": "ST-003",
+    "display_name": "Специалист ЛТП 003",
+    "service_center_id": "SC-03",
+    "profiles": [
+      "LTP3"
+    ],
+    "technologies": [
+      "XDSL",
+      "DOCSIS"
+    ],
+    "height_permit": true,
+    "shift": {
+      "start": "09:00",
+      "end": "18:00",
+      "break_duration_min": 60,
+      "break_window": {
+        "from": "12:00",
+        "to": "15:00"
+      }
+    },
+    "equipment_start": {
+      "ONT": 3,
+      "ROUTER": 3,
+      "STB": 2
+    },
+    "equipment_capacity": {
+      "ONT": 6,
+      "ROUTER": 6,
+      "STB": 4
+    },
+    "experience_years": 3
+  },
+  {
+    "staff_id": "ST-004",
+    "display_name": "Специалист ЛТП 004",
+    "service_center_id": "SC-04",
+    "profiles": [
+      "LTP3"
+    ],
+    "technologies": [
+      "DOCSIS",
+      "PON"
+    ],
+    "height_permit": false,
+    "shift": {
+      "start": "12:00",
+      "end": "21:00",
+      "break_duration_min": 60,
+      "break_window": {
+        "from": "15:00",
+        "to": "18:00"
+      }
+    },
+    "equipment_start": {
+      "ONT": 1,
+      "ROUTER": 4,
+      "STB": 0
+    },
+    "equipment_capacity": {
+      "ONT": 6,
+      "ROUTER": 6,
+      "STB": 4
+    },
+    "experience_years": 4
+  },
+  {
+    "staff_id": "ST-005",
+    "display_name": "Специалист ЛТП 005",
+    "service_center_id": "SC-05",
+    "profiles": [
+      "LTP3"
+    ],
+    "technologies": [
+      "PON",
+      "FTTB",
+      "XDSL",
+      "DOCSIS"
+    ],
+    "height_permit": true,
+    "shift": {
+      "start": "09:00",
+      "end": "18:00",
+      "break_duration_min": 60,
+      "break_window": {
+        "from": "12:00",
+        "to": "15:00"
+      }
+    },
+    "equipment_start": {
+      "ONT": 2,
+      "ROUTER": 1,
+      "STB": 1
+    },
+    "equipment_capacity": {
+      "ONT": 6,
+      "ROUTER": 6,
+      "STB": 4
+    },
+    "experience_years": 5
+  },
+  {
+    "staff_id": "ST-006",
+    "display_name": "Специалист ЛТП 006",
+    "service_center_id": "SC-01",
+    "profiles": [
+      "LTP3"
+    ],
+    "technologies": [
+      "FTTB",
+      "XDSL"
+    ],
+    "height_permit": true,
+    "shift": {
+      "start": "09:00",
+      "end": "18:00",
+      "break_duration_min": 60,
+      "break_window": {
+        "from": "12:00",
+        "to": "15:00"
+      }
+    },
+    "equipment_start": {
+      "ONT": 3,
+      "ROUTER": 2,
+      "STB": 2
+    },
+    "equipment_capacity": {
+      "ONT": 6,
+      "ROUTER": 6,
+      "STB": 4
+    },
+    "experience_years": 6
+  },
+  {
+    "staff_id": "ST-007",
+    "display_name": "Специалист ЛТП 007",
+    "service_center_id": "SC-02",
+    "profiles": [
+      "LTP3"
+    ],
+    "technologies": [
+      "XDSL",
+      "DOCSIS"
+    ],
+    "height_permit": false,
+    "shift": {
+      "start": "12:00",
+      "end": "21:00",
+      "break_duration_min": 60,
+      "break_window": {
+        "from": "15:00",
+        "to": "18:00"
+      }
+    },
+    "equipment_start": {
+      "ONT": 1,
+      "ROUTER": 3,
+      "STB": 0
+    },
+    "equipment_capacity": {
+      "ONT": 6,
+      "ROUTER": 6,
+      "STB": 4
+    },
+    "experience_years": 7
+  },
+  {
+    "staff_id": "ST-008",
+    "display_name": "Специалист ЛТП 008",
+    "service_center_id": "SC-03",
+    "profiles": [
+      "LTP3"
+    ],
+    "technologies": [
+      "DOCSIS",
+      "PON"
+    ],
+    "height_permit": true,
+    "shift": {
+      "start": "09:00",
+      "end": "18:00",
+      "break_duration_min": 60,
+      "break_window": {
+        "from": "12:00",
+        "to": "15:00"
+      }
+    },
+    "equipment_start": {
+      "ONT": 2,
+      "ROUTER": 4,
+      "STB": 1
+    },
+    "equipment_capacity": {
+      "ONT": 6,
+      "ROUTER": 6,
+      "STB": 4
+    },
+    "experience_years": 8
+  },
+  {
+    "staff_id": "ST-009",
+    "display_name": "Специалист ЛТП 009",
+    "service_center_id": "SC-04",
+    "profiles": [
+      "LTP3"
+    ],
+    "technologies": [
+      "PON",
+      "FTTB",
+      "XDSL",
+      "DOCSIS"
+    ],
+    "height_permit": true,
+    "shift": {
+      "start": "09:00",
+      "end": "18:00",
+      "break_duration_min": 60,
+      "break_window": {
+        "from": "12:00",
+        "to": "15:00"
+      }
+    },
+    "equipment_start": {
+      "ONT": 3,
+      "ROUTER": 1,
+      "STB": 2
+    },
+    "equipment_capacity": {
+      "ONT": 6,
+      "ROUTER": 6,
+      "STB": 4
+    },
+    "experience_years": 9
+  },
+  {
+    "staff_id": "ST-010",
+    "display_name": "Специалист ЛТП 010",
+    "service_center_id": "SC-05",
+    "profiles": [
+      "LTP3"
+    ],
+    "technologies": [
+      "FTTB",
+      "XDSL"
+    ],
+    "height_permit": false,
+    "shift": {
+      "start": "12:00",
+      "end": "21:00",
+      "break_duration_min": 60,
+      "break_window": {
+        "from": "15:00",
+        "to": "18:00"
+      }
+    },
+    "equipment_start": {
+      "ONT": 1,
+      "ROUTER": 2,
+      "STB": 0
+    },
+    "equipment_capacity": {
+      "ONT": 6,
+      "ROUTER": 6,
+      "STB": 4
+    },
+    "experience_years": 10
+  },
+  {
+    "staff_id": "ST-011",
+    "display_name": "Специалист ЛТП 011",
+    "service_center_id": "SC-01",
+    "profiles": [
+      "LTP3"
+    ],
+    "technologies": [
+      "XDSL",
+      "DOCSIS"
+    ],
+    "height_permit": true,
+    "shift": {
+      "start": "09:00",
+      "end": "18:00",
+      "break_duration_min": 60,
+      "break_window": {
+        "from": "12:00",
+        "to": "15:00"
+      }
+    },
+    "equipment_start": {
+      "ONT": 2,
+      "ROUTER": 3,
+      "STB": 1
+    },
+    "equipment_capacity": {
+      "ONT": 6,
+      "ROUTER": 6,
+      "STB": 4
+    },
+    "experience_years": 11
+  },
+  {
+    "staff_id": "ST-012",
+    "display_name": "Специалист ЛТП 012",
+    "service_center_id": "SC-02",
+    "profiles": [
+      "LTP3"
+    ],
+    "technologies": [
+      "DOCSIS",
+      "PON"
+    ],
+    "height_permit": true,
+    "shift": {
+      "start": "09:00",
+      "end": "18:00",
+      "break_duration_min": 60,
+      "break_window": {
+        "from": "12:00",
+        "to": "15:00"
+      }
+    },
+    "equipment_start": {
+      "ONT": 3,
+      "ROUTER": 4,
+      "STB": 2
+    },
+    "equipment_capacity": {
+      "ONT": 6,
+      "ROUTER": 6,
+      "STB": 4
+    },
+    "experience_years": 12
+  },
+  {
+    "staff_id": "ST-013",
+    "display_name": "Специалист ЛТП 013",
+    "service_center_id": "SC-03",
+    "profiles": [
+      "LTP3"
+    ],
+    "technologies": [
+      "PON",
+      "FTTB",
+      "XDSL",
+      "DOCSIS"
+    ],
+    "height_permit": false,
+    "shift": {
+      "start": "12:00",
+      "end": "21:00",
+      "break_duration_min": 60,
+      "break_window": {
+        "from": "15:00",
+        "to": "18:00"
+      }
+    },
+    "equipment_start": {
+      "ONT": 1,
+      "ROUTER": 1,
+      "STB": 0
+    },
+    "equipment_capacity": {
+      "ONT": 6,
+      "ROUTER": 6,
+      "STB": 4
+    },
+    "experience_years": 1
+  },
+  {
+    "staff_id": "ST-014",
+    "display_name": "Специалист ЛТП 014",
+    "service_center_id": "SC-04",
+    "profiles": [
+      "LTP3"
+    ],
+    "technologies": [
+      "FTTB",
+      "XDSL"
+    ],
+    "height_permit": true,
+    "shift": {
+      "start": "09:00",
+      "end": "18:00",
+      "break_duration_min": 60,
+      "break_window": {
+        "from": "12:00",
+        "to": "15:00"
+      }
+    },
+    "equipment_start": {
+      "ONT": 2,
+      "ROUTER": 2,
+      "STB": 1
+    },
+    "equipment_capacity": {
+      "ONT": 6,
+      "ROUTER": 6,
+      "STB": 4
+    },
+    "experience_years": 2
+  },
+  {
+    "staff_id": "ST-015",
+    "display_name": "Специалист ЛТП 015",
+    "service_center_id": "SC-05",
+    "profiles": [
+      "LTP3"
+    ],
+    "technologies": [
+      "XDSL",
+      "DOCSIS"
+    ],
+    "height_permit": true,
+    "shift": {
+      "start": "09:00",
+      "end": "18:00",
+      "break_duration_min": 60,
+      "break_window": {
+        "from": "12:00",
+        "to": "15:00"
+      }
+    },
+    "equipment_start": {
+      "ONT": 3,
+      "ROUTER": 3,
+      "STB": 2
+    },
+    "equipment_capacity": {
+      "ONT": 6,
+      "ROUTER": 6,
+      "STB": 4
+    },
+    "experience_years": 3
+  },
+  {
+    "staff_id": "ST-016",
+    "display_name": "Специалист ЛТП 016",
+    "service_center_id": "SC-01",
+    "profiles": [
+      "LTP3"
+    ],
+    "technologies": [
+      "DOCSIS",
+      "PON"
+    ],
+    "height_permit": false,
+    "shift": {
+      "start": "12:00",
+      "end": "21:00",
+      "break_duration_min": 60,
+      "break_window": {
+        "from": "15:00",
+        "to": "18:00"
+      }
+    },
+    "equipment_start": {
+      "ONT": 1,
+      "ROUTER": 4,
+      "STB": 0
+    },
+    "equipment_capacity": {
+      "ONT": 6,
+      "ROUTER": 6,
+      "STB": 4
+    },
+    "experience_years": 4
+  },
+  {
+    "staff_id": "ST-017",
+    "display_name": "Специалист ЛТП 017",
+    "service_center_id": "SC-02",
+    "profiles": [
+      "LTP3"
+    ],
+    "technologies": [
+      "PON",
+      "FTTB",
+      "XDSL",
+      "DOCSIS"
+    ],
+    "height_permit": true,
+    "shift": {
+      "start": "09:00",
+      "end": "18:00",
+      "break_duration_min": 60,
+      "break_window": {
+        "from": "12:00",
+        "to": "15:00"
+      }
+    },
+    "equipment_start": {
+      "ONT": 2,
+      "ROUTER": 1,
+      "STB": 1
+    },
+    "equipment_capacity": {
+      "ONT": 6,
+      "ROUTER": 6,
+      "STB": 4
+    },
+    "experience_years": 5
+  },
+  {
+    "staff_id": "ST-018",
+    "display_name": "Специалист ЛТП 018",
+    "service_center_id": "SC-03",
+    "profiles": [
+      "LTP3"
+    ],
+    "technologies": [
+      "FTTB",
+      "XDSL"
+    ],
+    "height_permit": true,
+    "shift": {
+      "start": "09:00",
+      "end": "18:00",
+      "break_duration_min": 60,
+      "break_window": {
+        "from": "12:00",
+        "to": "15:00"
+      }
+    },
+    "equipment_start": {
+      "ONT": 3,
+      "ROUTER": 2,
+      "STB": 2
+    },
+    "equipment_capacity": {
+      "ONT": 6,
+      "ROUTER": 6,
+      "STB": 4
+    },
+    "experience_years": 6
+  },
+  {
+    "staff_id": "ST-019",
+    "display_name": "Специалист ЛТП 019",
+    "service_center_id": "SC-04",
+    "profiles": [
+      "LTP3"
+    ],
+    "technologies": [
+      "XDSL",
+      "DOCSIS"
+    ],
+    "height_permit": false,
+    "shift": {
+      "start": "12:00",
+      "end": "21:00",
+      "break_duration_min": 60,
+      "break_window": {
+        "from": "15:00",
+        "to": "18:00"
+      }
+    },
+    "equipment_start": {
+      "ONT": 1,
+      "ROUTER": 3,
+      "STB": 0
+    },
+    "equipment_capacity": {
+      "ONT": 6,
+      "ROUTER": 6,
+      "STB": 4
+    },
+    "experience_years": 7
+  },
+  {
+    "staff_id": "ST-020",
+    "display_name": "Специалист ЛТП 020",
+    "service_center_id": "SC-05",
+    "profiles": [
+      "LTP3"
+    ],
+    "technologies": [
+      "DOCSIS",
+      "PON"
+    ],
+    "height_permit": true,
+    "shift": {
+      "start": "09:00",
+      "end": "18:00",
+      "break_duration_min": 60,
+      "break_window": {
+        "from": "12:00",
+        "to": "15:00"
+      }
+    },
+    "equipment_start": {
+      "ONT": 2,
+      "ROUTER": 4,
+      "STB": 1
+    },
+    "equipment_capacity": {
+      "ONT": 6,
+      "ROUTER": 6,
+      "STB": 4
+    },
+    "experience_years": 8
+  },
+  {
+    "staff_id": "ST-021",
+    "display_name": "Специалист ЛТП 021",
+    "service_center_id": "SC-01",
+    "profiles": [
+      "LTP3"
+    ],
+    "technologies": [
+      "PON",
+      "FTTB",
+      "XDSL",
+      "DOCSIS"
+    ],
+    "height_permit": true,
+    "shift": {
+      "start": "09:00",
+      "end": "18:00",
+      "break_duration_min": 60,
+      "break_window": {
+        "from": "12:00",
+        "to": "15:00"
+      }
+    },
+    "equipment_start": {
+      "ONT": 3,
+      "ROUTER": 1,
+      "STB": 2
+    },
+    "equipment_capacity": {
+      "ONT": 6,
+      "ROUTER": 6,
+      "STB": 4
+    },
+    "experience_years": 9
+  },
+  {
+    "staff_id": "ST-022",
+    "display_name": "Специалист ЛТП 022",
+    "service_center_id": "SC-02",
+    "profiles": [
+      "LTP3"
+    ],
+    "technologies": [
+      "FTTB",
+      "XDSL"
+    ],
+    "height_permit": false,
+    "shift": {
+      "start": "12:00",
+      "end": "21:00",
+      "break_duration_min": 60,
+      "break_window": {
+        "from": "15:00",
+        "to": "18:00"
+      }
+    },
+    "equipment_start": {
+      "ONT": 1,
+      "ROUTER": 2,
+      "STB": 0
+    },
+    "equipment_capacity": {
+      "ONT": 6,
+      "ROUTER": 6,
+      "STB": 4
+    },
+    "experience_years": 10
+  },
+  {
+    "staff_id": "ST-023",
+    "display_name": "Специалист ЛТП 023",
+    "service_center_id": "SC-03",
+    "profiles": [
+      "LTP3"
+    ],
+    "technologies": [
+      "XDSL",
+      "DOCSIS"
+    ],
+    "height_permit": true,
+    "shift": {
+      "start": "09:00",
+      "end": "18:00",
+      "break_duration_min": 60,
+      "break_window": {
+        "from": "12:00",
+        "to": "15:00"
+      }
+    },
+    "equipment_start": {
+      "ONT": 2,
+      "ROUTER": 3,
+      "STB": 1
+    },
+    "equipment_capacity": {
+      "ONT": 6,
+      "ROUTER": 6,
+      "STB": 4
+    },
+    "experience_years": 11
+  },
+  {
+    "staff_id": "ST-024",
+    "display_name": "Специалист ЛТП 024",
+    "service_center_id": "SC-04",
+    "profiles": [
+      "LTP3"
+    ],
+    "technologies": [
+      "DOCSIS",
+      "PON"
+    ],
+    "height_permit": true,
+    "shift": {
+      "start": "09:00",
+      "end": "18:00",
+      "break_duration_min": 60,
+      "break_window": {
+        "from": "12:00",
+        "to": "15:00"
+      }
+    },
+    "equipment_start": {
+      "ONT": 3,
+      "ROUTER": 4,
+      "STB": 2
+    },
+    "equipment_capacity": {
+      "ONT": 6,
+      "ROUTER": 6,
+      "STB": 4
+    },
+    "experience_years": 12
+  },
+  {
+    "staff_id": "ST-025",
+    "display_name": "Специалист ЛТП 025",
+    "service_center_id": "SC-05",
+    "profiles": [
+      "LTP3"
+    ],
+    "technologies": [
+      "PON",
+      "FTTB",
+      "XDSL",
+      "DOCSIS"
+    ],
+    "height_permit": false,
+    "shift": {
+      "start": "12:00",
+      "end": "21:00",
+      "break_duration_min": 60,
+      "break_window": {
+        "from": "15:00",
+        "to": "18:00"
+      }
+    },
+    "equipment_start": {
+      "ONT": 1,
+      "ROUTER": 1,
+      "STB": 0
+    },
+    "equipment_capacity": {
+      "ONT": 6,
+      "ROUTER": 6,
+      "STB": 4
+    },
+    "experience_years": 1
+  },
+  {
+    "staff_id": "ST-026",
+    "display_name": "Специалист ЛТП 026",
+    "service_center_id": "SC-01",
+    "profiles": [
+      "LTP3"
+    ],
+    "technologies": [
+      "FTTB",
+      "XDSL"
+    ],
+    "height_permit": true,
+    "shift": {
+      "start": "09:00",
+      "end": "18:00",
+      "break_duration_min": 60,
+      "break_window": {
+        "from": "12:00",
+        "to": "15:00"
+      }
+    },
+    "equipment_start": {
+      "ONT": 2,
+      "ROUTER": 2,
+      "STB": 1
+    },
+    "equipment_capacity": {
+      "ONT": 6,
+      "ROUTER": 6,
+      "STB": 4
+    },
+    "experience_years": 2
+  },
+  {
+    "staff_id": "ST-027",
+    "display_name": "Специалист ЛТП 027",
+    "service_center_id": "SC-02",
+    "profiles": [
+      "LTP3"
+    ],
+    "technologies": [
+      "XDSL",
+      "DOCSIS"
+    ],
+    "height_permit": true,
+    "shift": {
+      "start": "09:00",
+      "end": "18:00",
+      "break_duration_min": 60,
+      "break_window": {
+        "from": "12:00",
+        "to": "15:00"
+      }
+    },
+    "equipment_start": {
+      "ONT": 3,
+      "ROUTER": 3,
+      "STB": 2
+    },
+    "equipment_capacity": {
+      "ONT": 6,
+      "ROUTER": 6,
+      "STB": 4
+    },
+    "experience_years": 3
+  },
+  {
+    "staff_id": "ST-028",
+    "display_name": "Специалист ЛТП 028",
+    "service_center_id": "SC-03",
+    "profiles": [
+      "LTP3"
+    ],
+    "technologies": [
+      "DOCSIS",
+      "PON"
+    ],
+    "height_permit": false,
+    "shift": {
+      "start": "12:00",
+      "end": "21:00",
+      "break_duration_min": 60,
+      "break_window": {
+        "from": "15:00",
+        "to": "18:00"
+      }
+    },
+    "equipment_start": {
+      "ONT": 1,
+      "ROUTER": 4,
+      "STB": 0
+    },
+    "equipment_capacity": {
+      "ONT": 6,
+      "ROUTER": 6,
+      "STB": 4
+    },
+    "experience_years": 4
+  },
+  {
+    "staff_id": "ST-029",
+    "display_name": "Инсталлятор 029",
+    "service_center_id": "SC-04",
+    "profiles": [
+      "INSTALL"
+    ],
+    "technologies": [
+      "PON",
+      "FTTB",
+      "XDSL",
+      "DOCSIS"
+    ],
+    "height_permit": true,
+    "shift": {
+      "start": "09:00",
+      "end": "18:00",
+      "break_duration_min": 60,
+      "break_window": {
+        "from": "12:00",
+        "to": "15:00"
+      }
+    },
+    "equipment_start": {
+      "ONT": 2,
+      "ROUTER": 1,
+      "STB": 1
+    },
+    "equipment_capacity": {
+      "ONT": 6,
+      "ROUTER": 6,
+      "STB": 4
+    },
+    "experience_years": 5
+  },
+  {
+    "staff_id": "ST-030",
+    "display_name": "Инсталлятор 030",
+    "service_center_id": "SC-05",
+    "profiles": [
+      "INSTALL"
+    ],
+    "technologies": [
+      "FTTB",
+      "XDSL"
+    ],
+    "height_permit": true,
+    "shift": {
+      "start": "09:00",
+      "end": "18:00",
+      "break_duration_min": 60,
+      "break_window": {
+        "from": "12:00",
+        "to": "15:00"
+      }
+    },
+    "equipment_start": {
+      "ONT": 3,
+      "ROUTER": 2,
+      "STB": 2
+    },
+    "equipment_capacity": {
+      "ONT": 6,
+      "ROUTER": 6,
+      "STB": 4
+    },
+    "experience_years": 6
+  },
+  {
+    "staff_id": "ST-031",
+    "display_name": "Инсталлятор 031",
+    "service_center_id": "SC-01",
+    "profiles": [
+      "INSTALL"
+    ],
+    "technologies": [
+      "XDSL",
+      "DOCSIS"
+    ],
+    "height_permit": false,
+    "shift": {
+      "start": "12:00",
+      "end": "21:00",
+      "break_duration_min": 60,
+      "break_window": {
+        "from": "15:00",
+        "to": "18:00"
+      }
+    },
+    "equipment_start": {
+      "ONT": 1,
+      "ROUTER": 3,
+      "STB": 0
+    },
+    "equipment_capacity": {
+      "ONT": 6,
+      "ROUTER": 6,
+      "STB": 4
+    },
+    "experience_years": 7
+  },
+  {
+    "staff_id": "ST-032",
+    "display_name": "Инсталлятор 032",
+    "service_center_id": "SC-02",
+    "profiles": [
+      "INSTALL"
+    ],
+    "technologies": [
+      "DOCSIS",
+      "PON"
+    ],
+    "height_permit": true,
+    "shift": {
+      "start": "09:00",
+      "end": "18:00",
+      "break_duration_min": 60,
+      "break_window": {
+        "from": "12:00",
+        "to": "15:00"
+      }
+    },
+    "equipment_start": {
+      "ONT": 2,
+      "ROUTER": 4,
+      "STB": 1
+    },
+    "equipment_capacity": {
+      "ONT": 6,
+      "ROUTER": 6,
+      "STB": 4
+    },
+    "experience_years": 8
+  },
+  {
+    "staff_id": "ST-033",
+    "display_name": "Инсталлятор 033",
+    "service_center_id": "SC-03",
+    "profiles": [
+      "INSTALL"
+    ],
+    "technologies": [
+      "PON",
+      "FTTB",
+      "XDSL",
+      "DOCSIS"
+    ],
+    "height_permit": true,
+    "shift": {
+      "start": "09:00",
+      "end": "18:00",
+      "break_duration_min": 60,
+      "break_window": {
+        "from": "12:00",
+        "to": "15:00"
+      }
+    },
+    "equipment_start": {
+      "ONT": 3,
+      "ROUTER": 1,
+      "STB": 2
+    },
+    "equipment_capacity": {
+      "ONT": 6,
+      "ROUTER": 6,
+      "STB": 4
+    },
+    "experience_years": 9
+  },
+  {
+    "staff_id": "ST-034",
+    "display_name": "Инсталлятор 034",
+    "service_center_id": "SC-04",
+    "profiles": [
+      "INSTALL"
+    ],
+    "technologies": [
+      "FTTB",
+      "XDSL"
+    ],
+    "height_permit": false,
+    "shift": {
+      "start": "12:00",
+      "end": "21:00",
+      "break_duration_min": 60,
+      "break_window": {
+        "from": "15:00",
+        "to": "18:00"
+      }
+    },
+    "equipment_start": {
+      "ONT": 1,
+      "ROUTER": 2,
+      "STB": 0
+    },
+    "equipment_capacity": {
+      "ONT": 6,
+      "ROUTER": 6,
+      "STB": 4
+    },
+    "experience_years": 10
+  },
+  {
+    "staff_id": "ST-035",
+    "display_name": "Инсталлятор 035",
+    "service_center_id": "SC-05",
+    "profiles": [
+      "INSTALL"
+    ],
+    "technologies": [
+      "XDSL",
+      "DOCSIS"
+    ],
+    "height_permit": true,
+    "shift": {
+      "start": "09:00",
+      "end": "18:00",
+      "break_duration_min": 60,
+      "break_window": {
+        "from": "12:00",
+        "to": "15:00"
+      }
+    },
+    "equipment_start": {
+      "ONT": 2,
+      "ROUTER": 3,
+      "STB": 1
+    },
+    "equipment_capacity": {
+      "ONT": 6,
+      "ROUTER": 6,
+      "STB": 4
+    },
+    "experience_years": 11
+  },
+  {
+    "staff_id": "ST-036",
+    "display_name": "Инсталлятор 036",
+    "service_center_id": "SC-01",
+    "profiles": [
+      "INSTALL"
+    ],
+    "technologies": [
+      "DOCSIS",
+      "PON"
+    ],
+    "height_permit": true,
+    "shift": {
+      "start": "09:00",
+      "end": "18:00",
+      "break_duration_min": 60,
+      "break_window": {
+        "from": "12:00",
+        "to": "15:00"
+      }
+    },
+    "equipment_start": {
+      "ONT": 3,
+      "ROUTER": 4,
+      "STB": 2
+    },
+    "equipment_capacity": {
+      "ONT": 6,
+      "ROUTER": 6,
+      "STB": 4
+    },
+    "experience_years": 12
+  },
+  {
+    "staff_id": "ST-037",
+    "display_name": "Инсталлятор 037",
+    "service_center_id": "SC-02",
+    "profiles": [
+      "INSTALL"
+    ],
+    "technologies": [
+      "PON",
+      "FTTB",
+      "XDSL",
+      "DOCSIS"
+    ],
+    "height_permit": false,
+    "shift": {
+      "start": "12:00",
+      "end": "21:00",
+      "break_duration_min": 60,
+      "break_window": {
+        "from": "15:00",
+        "to": "18:00"
+      }
+    },
+    "equipment_start": {
+      "ONT": 1,
+      "ROUTER": 1,
+      "STB": 0
+    },
+    "equipment_capacity": {
+      "ONT": 6,
+      "ROUTER": 6,
+      "STB": 4
+    },
+    "experience_years": 1
+  },
+  {
+    "staff_id": "ST-038",
+    "display_name": "Инсталлятор 038",
+    "service_center_id": "SC-03",
+    "profiles": [
+      "INSTALL"
+    ],
+    "technologies": [
+      "FTTB",
+      "XDSL"
+    ],
+    "height_permit": true,
+    "shift": {
+      "start": "09:00",
+      "end": "18:00",
+      "break_duration_min": 60,
+      "break_window": {
+        "from": "12:00",
+        "to": "15:00"
+      }
+    },
+    "equipment_start": {
+      "ONT": 2,
+      "ROUTER": 2,
+      "STB": 1
+    },
+    "equipment_capacity": {
+      "ONT": 6,
+      "ROUTER": 6,
+      "STB": 4
+    },
+    "experience_years": 2
+  },
+  {
+    "staff_id": "ST-039",
+    "display_name": "Инсталлятор 039",
+    "service_center_id": "SC-04",
+    "profiles": [
+      "INSTALL"
+    ],
+    "technologies": [
+      "XDSL",
+      "DOCSIS"
+    ],
+    "height_permit": true,
+    "shift": {
+      "start": "09:00",
+      "end": "18:00",
+      "break_duration_min": 60,
+      "break_window": {
+        "from": "12:00",
+        "to": "15:00"
+      }
+    },
+    "equipment_start": {
+      "ONT": 3,
+      "ROUTER": 3,
+      "STB": 2
+    },
+    "equipment_capacity": {
+      "ONT": 6,
+      "ROUTER": 6,
+      "STB": 4
+    },
+    "experience_years": 3
+  },
+  {
+    "staff_id": "ST-040",
+    "display_name": "Инсталлятор 040",
+    "service_center_id": "SC-05",
+    "profiles": [
+      "INSTALL"
+    ],
+    "technologies": [
+      "DOCSIS",
+      "PON"
+    ],
+    "height_permit": false,
+    "shift": {
+      "start": "12:00",
+      "end": "21:00",
+      "break_duration_min": 60,
+      "break_window": {
+        "from": "15:00",
+        "to": "18:00"
+      }
+    },
+    "equipment_start": {
+      "ONT": 1,
+      "ROUTER": 4,
+      "STB": 0
+    },
+    "equipment_capacity": {
+      "ONT": 6,
+      "ROUTER": 6,
+      "STB": 4
+    },
+    "experience_years": 4
+  }
+]
