@@ -1,0 +1,1402 @@
+[
+  {
+    "access_node_id": "AN-0001",
+    "node_type": "OLT",
+    "technology": "PON",
+    "name": "Учебный узел 001 · PON",
+    "lat": 56.90054,
+    "lon": 60.60631,
+    "buildings": [
+      {
+        "building_id": "B-00001",
+        "address": "Екатеринбург, учебный адрес №001 (синтетический)",
+        "lat": 56.90054,
+        "lon": 60.60631,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-01"
+      },
+      {
+        "building_id": "B-00002",
+        "address": "Екатеринбург, учебный адрес №002 (синтетический)",
+        "lat": 56.904085,
+        "lon": 60.607774,
+        "building_type": "PRIVATE",
+        "overhead_line": true,
+        "zone_service_center_id": "SC-01"
+      }
+    ]
+  },
+  {
+    "access_node_id": "AN-0002",
+    "node_type": "SWITCH",
+    "technology": "FTTB",
+    "name": "Учебный узел 002 · FTTB",
+    "lat": 56.840121,
+    "lon": 60.571806,
+    "buildings": [
+      {
+        "building_id": "B-00003",
+        "address": "Екатеринбург, учебный адрес №003 (синтетический)",
+        "lat": 56.840121,
+        "lon": 60.571806,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-02"
+      },
+      {
+        "building_id": "B-00004",
+        "address": "Екатеринбург, учебный адрес №004 (синтетический)",
+        "lat": 56.84495,
+        "lon": 60.573262,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-02"
+      }
+    ]
+  },
+  {
+    "access_node_id": "AN-0003",
+    "node_type": "DSLAM",
+    "technology": "XDSL",
+    "name": "Учебный узел 003 · XDSL",
+    "lat": 56.841618,
+    "lon": 60.673951,
+    "buildings": [
+      {
+        "building_id": "B-00005",
+        "address": "Екатеринбург, учебный адрес №005 (синтетический)",
+        "lat": 56.841618,
+        "lon": 60.673951,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-03"
+      },
+      {
+        "building_id": "B-00006",
+        "address": "Екатеринбург, учебный адрес №006 (синтетический)",
+        "lat": 56.843156,
+        "lon": 60.668381,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-03"
+      }
+    ]
+  },
+  {
+    "access_node_id": "AN-0004",
+    "node_type": "CMTS",
+    "technology": "DOCSIS",
+    "name": "Учебный узел 004 · DOCSIS",
+    "lat": 56.796302,
+    "lon": 60.603985,
+    "buildings": [
+      {
+        "building_id": "B-00007",
+        "address": "Екатеринбург, учебный адрес №007 (синтетический)",
+        "lat": 56.796302,
+        "lon": 60.603985,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-04"
+      },
+      {
+        "building_id": "B-00008",
+        "address": "Екатеринбург, учебный адрес №008 (синтетический)",
+        "lat": 56.799691,
+        "lon": 60.60641,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-04"
+      }
+    ]
+  },
+  {
+    "access_node_id": "AN-0005",
+    "node_type": "OLT",
+    "technology": "PON",
+    "name": "Учебный узел 005 · PON",
+    "lat": 56.826083,
+    "lon": 60.61145,
+    "buildings": [
+      {
+        "building_id": "B-00009",
+        "address": "Екатеринбург, учебный адрес №009 (синтетический)",
+        "lat": 56.826083,
+        "lon": 60.61145,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-05"
+      },
+      {
+        "building_id": "B-00010",
+        "address": "Екатеринбург, учебный адрес №010 (синтетический)",
+        "lat": 56.82753,
+        "lon": 60.615268,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-05"
+      }
+    ]
+  },
+  {
+    "access_node_id": "AN-0006",
+    "node_type": "SWITCH",
+    "technology": "FTTB",
+    "name": "Учебный узел 006 · FTTB",
+    "lat": 56.892379,
+    "lon": 60.620913,
+    "buildings": [
+      {
+        "building_id": "B-00011",
+        "address": "Екатеринбург, учебный адрес №011 (синтетический)",
+        "lat": 56.892379,
+        "lon": 60.620913,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-01"
+      },
+      {
+        "building_id": "B-00012",
+        "address": "Екатеринбург, учебный адрес №012 (синтетический)",
+        "lat": 56.892529,
+        "lon": 60.621343,
+        "building_type": "PRIVATE",
+        "overhead_line": true,
+        "zone_service_center_id": "SC-01"
+      }
+    ]
+  },
+  {
+    "access_node_id": "AN-0007",
+    "node_type": "DSLAM",
+    "technology": "XDSL",
+    "name": "Учебный узел 007 · XDSL",
+    "lat": 56.851317,
+    "lon": 60.556729,
+    "buildings": [
+      {
+        "building_id": "B-00013",
+        "address": "Екатеринбург, учебный адрес №013 (синтетический)",
+        "lat": 56.851317,
+        "lon": 60.556729,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-02"
+      },
+      {
+        "building_id": "B-00014",
+        "address": "Екатеринбург, учебный адрес №014 (синтетический)",
+        "lat": 56.851288,
+        "lon": 60.549197,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-02"
+      }
+    ]
+  },
+  {
+    "access_node_id": "AN-0008",
+    "node_type": "CMTS",
+    "technology": "DOCSIS",
+    "name": "Учебный узел 008 · DOCSIS",
+    "lat": 56.852103,
+    "lon": 60.681784,
+    "buildings": [
+      {
+        "building_id": "B-00015",
+        "address": "Екатеринбург, учебный адрес №015 (синтетический)",
+        "lat": 56.852103,
+        "lon": 60.681784,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-03"
+      },
+      {
+        "building_id": "B-00016",
+        "address": "Екатеринбург, учебный адрес №016 (синтетический)",
+        "lat": 56.862196,
+        "lon": 60.689221,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-03"
+      }
+    ]
+  },
+  {
+    "access_node_id": "AN-0009",
+    "node_type": "OLT",
+    "technology": "PON",
+    "name": "Учебный узел 009 · PON",
+    "lat": 56.789147,
+    "lon": 60.597494,
+    "buildings": [
+      {
+        "building_id": "B-00017",
+        "address": "Екатеринбург, учебный адрес №017 (синтетический)",
+        "lat": 56.789147,
+        "lon": 60.597494,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-04"
+      },
+      {
+        "building_id": "B-00018",
+        "address": "Екатеринбург, учебный адрес №018 (синтетический)",
+        "lat": 56.792415,
+        "lon": 60.593918,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-04"
+      }
+    ]
+  },
+  {
+    "access_node_id": "AN-0010",
+    "node_type": "SWITCH",
+    "technology": "FTTB",
+    "name": "Учебный узел 010 · FTTB",
+    "lat": 56.831471,
+    "lon": 60.603959,
+    "buildings": [
+      {
+        "building_id": "B-00019",
+        "address": "Екатеринбург, учебный адрес №019 (синтетический)",
+        "lat": 56.831471,
+        "lon": 60.603959,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-05"
+      },
+      {
+        "building_id": "B-00020",
+        "address": "Екатеринбург, учебный адрес №020 (синтетический)",
+        "lat": 56.827395,
+        "lon": 60.602208,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-05"
+      }
+    ]
+  },
+  {
+    "access_node_id": "AN-0011",
+    "node_type": "DSLAM",
+    "technology": "XDSL",
+    "name": "Учебный узел 011 · XDSL",
+    "lat": 56.882259,
+    "lon": 60.593323,
+    "buildings": [
+      {
+        "building_id": "B-00021",
+        "address": "Екатеринбург, учебный адрес №021 (синтетический)",
+        "lat": 56.882259,
+        "lon": 60.593323,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-01"
+      },
+      {
+        "building_id": "B-00022",
+        "address": "Екатеринбург, учебный адрес №022 (синтетический)",
+        "lat": 56.88513,
+        "lon": 60.595074,
+        "building_type": "PRIVATE",
+        "overhead_line": true,
+        "zone_service_center_id": "SC-01"
+      }
+    ]
+  },
+  {
+    "access_node_id": "AN-0012",
+    "node_type": "CMTS",
+    "technology": "DOCSIS",
+    "name": "Учебный узел 012 · DOCSIS",
+    "lat": 56.842887,
+    "lon": 60.562681,
+    "buildings": [
+      {
+        "building_id": "B-00023",
+        "address": "Екатеринбург, учебный адрес №023 (синтетический)",
+        "lat": 56.842887,
+        "lon": 60.562681,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-02"
+      },
+      {
+        "building_id": "B-00024",
+        "address": "Екатеринбург, учебный адрес №024 (синтетический)",
+        "lat": 56.839749,
+        "lon": 60.563362,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-02"
+      }
+    ]
+  },
+  {
+    "access_node_id": "AN-0013",
+    "node_type": "OLT",
+    "technology": "PON",
+    "name": "Учебный узел 013 · PON",
+    "lat": 56.84429,
+    "lon": 60.649974,
+    "buildings": [
+      {
+        "building_id": "B-00025",
+        "address": "Екатеринбург, учебный адрес №025 (синтетический)",
+        "lat": 56.84429,
+        "lon": 60.649974,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-03"
+      },
+      {
+        "building_id": "B-00026",
+        "address": "Екатеринбург, учебный адрес №026 (синтетический)",
+        "lat": 56.846448,
+        "lon": 60.652316,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-03"
+      }
+    ]
+  },
+  {
+    "access_node_id": "AN-0014",
+    "node_type": "SWITCH",
+    "technology": "FTTB",
+    "name": "Учебный узел 014 · FTTB",
+    "lat": 56.777732,
+    "lon": 60.584406,
+    "buildings": [
+      {
+        "building_id": "B-00027",
+        "address": "Екатеринбург, учебный адрес №027 (синтетический)",
+        "lat": 56.777732,
+        "lon": 60.584406,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-04"
+      },
+      {
+        "building_id": "B-00028",
+        "address": "Екатеринбург, учебный адрес №028 (синтетический)",
+        "lat": 56.781319,
+        "lon": 60.589609,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-04"
+      }
+    ]
+  },
+  {
+    "access_node_id": "AN-0015",
+    "node_type": "DSLAM",
+    "technology": "XDSL",
+    "name": "Учебный узел 015 · XDSL",
+    "lat": 56.837709,
+    "lon": 60.622035,
+    "buildings": [
+      {
+        "building_id": "B-00029",
+        "address": "Екатеринбург, учебный адрес №029 (синтетический)",
+        "lat": 56.837709,
+        "lon": 60.622035,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-05"
+      },
+      {
+        "building_id": "B-00030",
+        "address": "Екатеринбург, учебный адрес №030 (синтетический)",
+        "lat": 56.839007,
+        "lon": 60.623815,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-05"
+      }
+    ]
+  },
+  {
+    "access_node_id": "AN-0016",
+    "node_type": "CMTS",
+    "technology": "DOCSIS",
+    "name": "Учебный узел 016 · DOCSIS",
+    "lat": 56.886418,
+    "lon": 60.598031,
+    "buildings": [
+      {
+        "building_id": "B-00031",
+        "address": "Екатеринбург, учебный адрес №031 (синтетический)",
+        "lat": 56.886418,
+        "lon": 60.598031,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-01"
+      },
+      {
+        "building_id": "B-00032",
+        "address": "Екатеринбург, учебный адрес №032 (синтетический)",
+        "lat": 56.884778,
+        "lon": 60.596306,
+        "building_type": "PRIVATE",
+        "overhead_line": true,
+        "zone_service_center_id": "SC-01"
+      }
+    ]
+  },
+  {
+    "access_node_id": "AN-0017",
+    "node_type": "OLT",
+    "technology": "PON",
+    "name": "Учебный узел 017 · PON",
+    "lat": 56.851903,
+    "lon": 60.582693,
+    "buildings": [
+      {
+        "building_id": "B-00033",
+        "address": "Екатеринбург, учебный адрес №033 (синтетический)",
+        "lat": 56.851903,
+        "lon": 60.582693,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-02"
+      },
+      {
+        "building_id": "B-00034",
+        "address": "Екатеринбург, учебный адрес №034 (синтетический)",
+        "lat": 56.851982,
+        "lon": 60.578454,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-02"
+      }
+    ]
+  },
+  {
+    "access_node_id": "AN-0018",
+    "node_type": "SWITCH",
+    "technology": "FTTB",
+    "name": "Учебный узел 018 · FTTB",
+    "lat": 56.840405,
+    "lon": 60.653727,
+    "buildings": [
+      {
+        "building_id": "B-00035",
+        "address": "Екатеринбург, учебный адрес №035 (синтетический)",
+        "lat": 56.840405,
+        "lon": 60.653727,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-03"
+      },
+      {
+        "building_id": "B-00036",
+        "address": "Екатеринбург, учебный адрес №036 (синтетический)",
+        "lat": 56.838265,
+        "lon": 60.659821,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-03"
+      }
+    ]
+  },
+  {
+    "access_node_id": "AN-0019",
+    "node_type": "DSLAM",
+    "technology": "XDSL",
+    "name": "Учебный узел 019 · XDSL",
+    "lat": 56.791293,
+    "lon": 60.59948,
+    "buildings": [
+      {
+        "building_id": "B-00037",
+        "address": "Екатеринбург, учебный адрес №037 (синтетический)",
+        "lat": 56.791293,
+        "lon": 60.59948,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-04"
+      },
+      {
+        "building_id": "B-00038",
+        "address": "Екатеринбург, учебный адрес №038 (синтетический)",
+        "lat": 56.787916,
+        "lon": 60.604317,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-04"
+      }
+    ]
+  },
+  {
+    "access_node_id": "AN-0020",
+    "node_type": "CMTS",
+    "technology": "DOCSIS",
+    "name": "Учебный узел 020 · DOCSIS",
+    "lat": 56.844714,
+    "lon": 60.623793,
+    "buildings": [
+      {
+        "building_id": "B-00039",
+        "address": "Екатеринбург, учебный адрес №039 (синтетический)",
+        "lat": 56.844714,
+        "lon": 60.623793,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-05"
+      },
+      {
+        "building_id": "B-00040",
+        "address": "Екатеринбург, учебный адрес №040 (синтетический)",
+        "lat": 56.840882,
+        "lon": 60.630857,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-05"
+      }
+    ]
+  },
+  {
+    "access_node_id": "AN-0021",
+    "node_type": "OLT",
+    "technology": "PON",
+    "name": "Учебный узел 021 · PON",
+    "lat": 56.882953,
+    "lon": 60.600223,
+    "buildings": [
+      {
+        "building_id": "B-00041",
+        "address": "Екатеринбург, учебный адрес №041 (синтетический)",
+        "lat": 56.882953,
+        "lon": 60.600223,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-01"
+      },
+      {
+        "building_id": "B-00042",
+        "address": "Екатеринбург, учебный адрес №042 (синтетический)",
+        "lat": 56.884663,
+        "lon": 60.611117,
+        "building_type": "PRIVATE",
+        "overhead_line": true,
+        "zone_service_center_id": "SC-01"
+      }
+    ]
+  },
+  {
+    "access_node_id": "AN-0022",
+    "node_type": "SWITCH",
+    "technology": "FTTB",
+    "name": "Учебный узел 022 · FTTB",
+    "lat": 56.851881,
+    "lon": 60.561486,
+    "buildings": [
+      {
+        "building_id": "B-00043",
+        "address": "Екатеринбург, учебный адрес №043 (синтетический)",
+        "lat": 56.851881,
+        "lon": 60.561486,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-02"
+      },
+      {
+        "building_id": "B-00044",
+        "address": "Екатеринбург, учебный адрес №044 (синтетический)",
+        "lat": 56.851916,
+        "lon": 60.562249,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-02"
+      }
+    ]
+  },
+  {
+    "access_node_id": "AN-0023",
+    "node_type": "DSLAM",
+    "technology": "XDSL",
+    "name": "Учебный узел 023 · XDSL",
+    "lat": 56.851712,
+    "lon": 60.648899,
+    "buildings": [
+      {
+        "building_id": "B-00045",
+        "address": "Екатеринбург, учебный адрес №045 (синтетический)",
+        "lat": 56.851712,
+        "lon": 60.648899,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-03"
+      },
+      {
+        "building_id": "B-00046",
+        "address": "Екатеринбург, учебный адрес №046 (синтетический)",
+        "lat": 56.846243,
+        "lon": 60.650436,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-03"
+      }
+    ]
+  },
+  {
+    "access_node_id": "AN-0024",
+    "node_type": "CMTS",
+    "technology": "DOCSIS",
+    "name": "Учебный узел 024 · DOCSIS",
+    "lat": 56.784707,
+    "lon": 60.612655,
+    "buildings": [
+      {
+        "building_id": "B-00047",
+        "address": "Екатеринбург, учебный адрес №047 (синтетический)",
+        "lat": 56.784707,
+        "lon": 60.612655,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-04"
+      },
+      {
+        "building_id": "B-00048",
+        "address": "Екатеринбург, учебный адрес №048 (синтетический)",
+        "lat": 56.785408,
+        "lon": 60.619101,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-04"
+      }
+    ]
+  },
+  {
+    "access_node_id": "AN-0025",
+    "node_type": "OLT",
+    "technology": "PON",
+    "name": "Учебный узел 025 · PON",
+    "lat": 56.835278,
+    "lon": 60.616887,
+    "buildings": [
+      {
+        "building_id": "B-00049",
+        "address": "Екатеринбург, учебный адрес №049 (синтетический)",
+        "lat": 56.835278,
+        "lon": 60.616887,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-05"
+      },
+      {
+        "building_id": "B-00050",
+        "address": "Екатеринбург, учебный адрес №050 (синтетический)",
+        "lat": 56.834946,
+        "lon": 60.618038,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-05"
+      }
+    ]
+  },
+  {
+    "access_node_id": "AN-0026",
+    "node_type": "SWITCH",
+    "technology": "FTTB",
+    "name": "Учебный узел 026 · FTTB",
+    "lat": 56.898626,
+    "lon": 60.625481,
+    "buildings": [
+      {
+        "building_id": "B-00051",
+        "address": "Екатеринбург, учебный адрес №051 (синтетический)",
+        "lat": 56.898626,
+        "lon": 60.625481,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-01"
+      },
+      {
+        "building_id": "B-00052",
+        "address": "Екатеринбург, учебный адрес №052 (синтетический)",
+        "lat": 56.895554,
+        "lon": 60.623632,
+        "building_type": "PRIVATE",
+        "overhead_line": true,
+        "zone_service_center_id": "SC-01"
+      }
+    ]
+  },
+  {
+    "access_node_id": "AN-0027",
+    "node_type": "DSLAM",
+    "technology": "XDSL",
+    "name": "Учебный узел 027 · XDSL",
+    "lat": 56.840804,
+    "lon": 60.565016,
+    "buildings": [
+      {
+        "building_id": "B-00053",
+        "address": "Екатеринбург, учебный адрес №053 (синтетический)",
+        "lat": 56.840804,
+        "lon": 60.565016,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-02"
+      },
+      {
+        "building_id": "B-00054",
+        "address": "Екатеринбург, учебный адрес №054 (синтетический)",
+        "lat": 56.841231,
+        "lon": 60.56697,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-02"
+      }
+    ]
+  },
+  {
+    "access_node_id": "AN-0028",
+    "node_type": "CMTS",
+    "technology": "DOCSIS",
+    "name": "Учебный узел 028 · DOCSIS",
+    "lat": 56.852691,
+    "lon": 60.653743,
+    "buildings": [
+      {
+        "building_id": "B-00055",
+        "address": "Екатеринбург, учебный адрес №055 (синтетический)",
+        "lat": 56.852691,
+        "lon": 60.653743,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-03"
+      },
+      {
+        "building_id": "B-00056",
+        "address": "Екатеринбург, учебный адрес №056 (синтетический)",
+        "lat": 56.852831,
+        "lon": 60.6537,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-03"
+      }
+    ]
+  },
+  {
+    "access_node_id": "AN-0029",
+    "node_type": "OLT",
+    "technology": "PON",
+    "name": "Учебный узел 029 · PON",
+    "lat": 56.803784,
+    "lon": 60.606099,
+    "buildings": [
+      {
+        "building_id": "B-00057",
+        "address": "Екатеринбург, учебный адрес №057 (синтетический)",
+        "lat": 56.803784,
+        "lon": 60.606099,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-04"
+      },
+      {
+        "building_id": "B-00058",
+        "address": "Екатеринбург, учебный адрес №058 (синтетический)",
+        "lat": 56.80373,
+        "lon": 60.610319,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-04"
+      }
+    ]
+  },
+  {
+    "access_node_id": "AN-0030",
+    "node_type": "SWITCH",
+    "technology": "FTTB",
+    "name": "Учебный узел 030 · FTTB",
+    "lat": 56.830672,
+    "lon": 60.601137,
+    "buildings": [
+      {
+        "building_id": "B-00059",
+        "address": "Екатеринбург, учебный адрес №059 (синтетический)",
+        "lat": 56.830672,
+        "lon": 60.601137,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-05"
+      },
+      {
+        "building_id": "B-00060",
+        "address": "Екатеринбург, учебный адрес №060 (синтетический)",
+        "lat": 56.833095,
+        "lon": 60.607717,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-05"
+      }
+    ]
+  },
+  {
+    "access_node_id": "AN-0031",
+    "node_type": "DSLAM",
+    "technology": "XDSL",
+    "name": "Учебный узел 031 · XDSL",
+    "lat": 56.888512,
+    "lon": 60.608001,
+    "buildings": [
+      {
+        "building_id": "B-00061",
+        "address": "Екатеринбург, учебный адрес №061 (синтетический)",
+        "lat": 56.888512,
+        "lon": 60.608001,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-01"
+      },
+      {
+        "building_id": "B-00062",
+        "address": "Екатеринбург, учебный адрес №062 (синтетический)",
+        "lat": 56.88862,
+        "lon": 60.61107,
+        "building_type": "PRIVATE",
+        "overhead_line": true,
+        "zone_service_center_id": "SC-01"
+      }
+    ]
+  },
+  {
+    "access_node_id": "AN-0032",
+    "node_type": "CMTS",
+    "technology": "DOCSIS",
+    "name": "Учебный узел 032 · DOCSIS",
+    "lat": 56.854183,
+    "lon": 60.56645,
+    "buildings": [
+      {
+        "building_id": "B-00063",
+        "address": "Екатеринбург, учебный адрес №063 (синтетический)",
+        "lat": 56.854183,
+        "lon": 60.56645,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-02"
+      },
+      {
+        "building_id": "B-00064",
+        "address": "Екатеринбург, учебный адрес №064 (синтетический)",
+        "lat": 56.853317,
+        "lon": 60.567526,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-02"
+      }
+    ]
+  },
+  {
+    "access_node_id": "AN-0033",
+    "node_type": "OLT",
+    "technology": "PON",
+    "name": "Учебный узел 033 · PON",
+    "lat": 56.838412,
+    "lon": 60.683807,
+    "buildings": [
+      {
+        "building_id": "B-00065",
+        "address": "Екатеринбург, учебный адрес №065 (синтетический)",
+        "lat": 56.838412,
+        "lon": 60.683807,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-03"
+      },
+      {
+        "building_id": "B-00066",
+        "address": "Екатеринбург, учебный адрес №066 (синтетический)",
+        "lat": 56.83921,
+        "lon": 60.679673,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-03"
+      }
+    ]
+  },
+  {
+    "access_node_id": "AN-0034",
+    "node_type": "SWITCH",
+    "technology": "FTTB",
+    "name": "Учебный узел 034 · FTTB",
+    "lat": 56.791566,
+    "lon": 60.598816,
+    "buildings": [
+      {
+        "building_id": "B-00067",
+        "address": "Екатеринбург, учебный адрес №067 (синтетический)",
+        "lat": 56.791566,
+        "lon": 60.598816,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-04"
+      },
+      {
+        "building_id": "B-00068",
+        "address": "Екатеринбург, учебный адрес №068 (синтетический)",
+        "lat": 56.795396,
+        "lon": 60.604203,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-04"
+      }
+    ]
+  },
+  {
+    "access_node_id": "AN-0035",
+    "node_type": "DSLAM",
+    "technology": "XDSL",
+    "name": "Учебный узел 035 · XDSL",
+    "lat": 56.84378,
+    "lon": 60.618121,
+    "buildings": [
+      {
+        "building_id": "B-00069",
+        "address": "Екатеринбург, учебный адрес №069 (синтетический)",
+        "lat": 56.84378,
+        "lon": 60.618121,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-05"
+      },
+      {
+        "building_id": "B-00070",
+        "address": "Екатеринбург, учебный адрес №070 (синтетический)",
+        "lat": 56.843737,
+        "lon": 60.612601,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-05"
+      }
+    ]
+  },
+  {
+    "access_node_id": "AN-0036",
+    "node_type": "CMTS",
+    "technology": "DOCSIS",
+    "name": "Учебный узел 036 · DOCSIS",
+    "lat": 56.896361,
+    "lon": 60.587523,
+    "buildings": [
+      {
+        "building_id": "B-00071",
+        "address": "Екатеринбург, учебный адрес №071 (синтетический)",
+        "lat": 56.896361,
+        "lon": 60.587523,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-01"
+      },
+      {
+        "building_id": "B-00072",
+        "address": "Екатеринбург, учебный адрес №072 (синтетический)",
+        "lat": 56.894972,
+        "lon": 60.590533,
+        "building_type": "PRIVATE",
+        "overhead_line": true,
+        "zone_service_center_id": "SC-01"
+      }
+    ]
+  },
+  {
+    "access_node_id": "AN-0037",
+    "node_type": "OLT",
+    "technology": "PON",
+    "name": "Учебный узел 037 · PON",
+    "lat": 56.833377,
+    "lon": 60.587215,
+    "buildings": [
+      {
+        "building_id": "B-00073",
+        "address": "Екатеринбург, учебный адрес №073 (синтетический)",
+        "lat": 56.833377,
+        "lon": 60.587215,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-02"
+      },
+      {
+        "building_id": "B-00074",
+        "address": "Екатеринбург, учебный адрес №074 (синтетический)",
+        "lat": 56.833801,
+        "lon": 60.588122,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-02"
+      }
+    ]
+  },
+  {
+    "access_node_id": "AN-0038",
+    "node_type": "SWITCH",
+    "technology": "FTTB",
+    "name": "Учебный узел 038 · FTTB",
+    "lat": 56.835878,
+    "lon": 60.680398,
+    "buildings": [
+      {
+        "building_id": "B-00075",
+        "address": "Екатеринбург, учебный адрес №075 (синтетический)",
+        "lat": 56.835878,
+        "lon": 60.680398,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-03"
+      },
+      {
+        "building_id": "B-00076",
+        "address": "Екатеринбург, учебный адрес №076 (синтетический)",
+        "lat": 56.834719,
+        "lon": 60.685977,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-03"
+      }
+    ]
+  },
+  {
+    "access_node_id": "AN-0039",
+    "node_type": "DSLAM",
+    "technology": "XDSL",
+    "name": "Учебный узел 039 · XDSL",
+    "lat": 56.787938,
+    "lon": 60.608439,
+    "buildings": [
+      {
+        "building_id": "B-00077",
+        "address": "Екатеринбург, учебный адрес №077 (синтетический)",
+        "lat": 56.787938,
+        "lon": 60.608439,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-04"
+      },
+      {
+        "building_id": "B-00078",
+        "address": "Екатеринбург, учебный адрес №078 (синтетический)",
+        "lat": 56.786275,
+        "lon": 60.611093,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-04"
+      }
+    ]
+  },
+  {
+    "access_node_id": "AN-0040",
+    "node_type": "CMTS",
+    "technology": "DOCSIS",
+    "name": "Учебный узел 040 · DOCSIS",
+    "lat": 56.829062,
+    "lon": 60.614146,
+    "buildings": [
+      {
+        "building_id": "B-00079",
+        "address": "Екатеринбург, учебный адрес №079 (синтетический)",
+        "lat": 56.829062,
+        "lon": 60.614146,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-05"
+      },
+      {
+        "building_id": "B-00080",
+        "address": "Екатеринбург, учебный адрес №080 (синтетический)",
+        "lat": 56.824569,
+        "lon": 60.614764,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-05"
+      }
+    ]
+  },
+  {
+    "access_node_id": "AN-0041",
+    "node_type": "OLT",
+    "technology": "PON",
+    "name": "Учебный узел 041 · PON",
+    "lat": 56.894687,
+    "lon": 60.624045,
+    "buildings": [
+      {
+        "building_id": "B-00081",
+        "address": "Екатеринбург, учебный адрес №081 (синтетический)",
+        "lat": 56.894687,
+        "lon": 60.624045,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-01"
+      },
+      {
+        "building_id": "B-00082",
+        "address": "Екатеринбург, учебный адрес №082 (синтетический)",
+        "lat": 56.893733,
+        "lon": 60.627658,
+        "building_type": "PRIVATE",
+        "overhead_line": true,
+        "zone_service_center_id": "SC-01"
+      }
+    ]
+  },
+  {
+    "access_node_id": "AN-0042",
+    "node_type": "SWITCH",
+    "technology": "FTTB",
+    "name": "Учебный узел 042 · FTTB",
+    "lat": 56.850434,
+    "lon": 60.573657,
+    "buildings": [
+      {
+        "building_id": "B-00083",
+        "address": "Екатеринбург, учебный адрес №083 (синтетический)",
+        "lat": 56.850434,
+        "lon": 60.573657,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-02"
+      },
+      {
+        "building_id": "B-00084",
+        "address": "Екатеринбург, учебный адрес №084 (синтетический)",
+        "lat": 56.847949,
+        "lon": 60.56796,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-02"
+      }
+    ]
+  },
+  {
+    "access_node_id": "AN-0043",
+    "node_type": "DSLAM",
+    "technology": "XDSL",
+    "name": "Учебный узел 043 · XDSL",
+    "lat": 56.857726,
+    "lon": 60.673553,
+    "buildings": [
+      {
+        "building_id": "B-00085",
+        "address": "Екатеринбург, учебный адрес №085 (синтетический)",
+        "lat": 56.857726,
+        "lon": 60.673553,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-03"
+      },
+      {
+        "building_id": "B-00086",
+        "address": "Екатеринбург, учебный адрес №086 (синтетический)",
+        "lat": 56.86085,
+        "lon": 60.675105,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-03"
+      }
+    ]
+  },
+  {
+    "access_node_id": "AN-0044",
+    "node_type": "CMTS",
+    "technology": "DOCSIS",
+    "name": "Учебный узел 044 · DOCSIS",
+    "lat": 56.795052,
+    "lon": 60.597474,
+    "buildings": [
+      {
+        "building_id": "B-00087",
+        "address": "Екатеринбург, учебный адрес №087 (синтетический)",
+        "lat": 56.795052,
+        "lon": 60.597474,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-04"
+      },
+      {
+        "building_id": "B-00088",
+        "address": "Екатеринбург, учебный адрес №088 (синтетический)",
+        "lat": 56.7998,
+        "lon": 60.60191,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-04"
+      }
+    ]
+  },
+  {
+    "access_node_id": "AN-0045",
+    "node_type": "OLT",
+    "technology": "PON",
+    "name": "Учебный узел 045 · PON",
+    "lat": 56.841126,
+    "lon": 60.604927,
+    "buildings": [
+      {
+        "building_id": "B-00089",
+        "address": "Екатеринбург, учебный адрес №089 (синтетический)",
+        "lat": 56.841126,
+        "lon": 60.604927,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-05"
+      },
+      {
+        "building_id": "B-00090",
+        "address": "Екатеринбург, учебный адрес №090 (синтетический)",
+        "lat": 56.837275,
+        "lon": 60.606068,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-05"
+      }
+    ]
+  },
+  {
+    "access_node_id": "AN-0046",
+    "node_type": "SWITCH",
+    "technology": "FTTB",
+    "name": "Учебный узел 046 · FTTB",
+    "lat": 56.88395,
+    "lon": 60.586378,
+    "buildings": [
+      {
+        "building_id": "B-00091",
+        "address": "Екатеринбург, учебный адрес №091 (синтетический)",
+        "lat": 56.88395,
+        "lon": 60.586378,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-01"
+      },
+      {
+        "building_id": "B-00092",
+        "address": "Екатеринбург, учебный адрес №092 (синтетический)",
+        "lat": 56.883002,
+        "lon": 60.586308,
+        "building_type": "PRIVATE",
+        "overhead_line": true,
+        "zone_service_center_id": "SC-01"
+      }
+    ]
+  },
+  {
+    "access_node_id": "AN-0047",
+    "node_type": "DSLAM",
+    "technology": "XDSL",
+    "name": "Учебный узел 047 · XDSL",
+    "lat": 56.848649,
+    "lon": 60.566327,
+    "buildings": [
+      {
+        "building_id": "B-00093",
+        "address": "Екатеринбург, учебный адрес №093 (синтетический)",
+        "lat": 56.848649,
+        "lon": 60.566327,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-02"
+      },
+      {
+        "building_id": "B-00094",
+        "address": "Екатеринбург, учебный адрес №094 (синтетический)",
+        "lat": 56.849073,
+        "lon": 60.566827,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-02"
+      }
+    ]
+  },
+  {
+    "access_node_id": "AN-0048",
+    "node_type": "CMTS",
+    "technology": "DOCSIS",
+    "name": "Учебный узел 048 · DOCSIS",
+    "lat": 56.845599,
+    "lon": 60.686735,
+    "buildings": [
+      {
+        "building_id": "B-00095",
+        "address": "Екатеринбург, учебный адрес №095 (синтетический)",
+        "lat": 56.845599,
+        "lon": 60.686735,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-03"
+      },
+      {
+        "building_id": "B-00096",
+        "address": "Екатеринбург, учебный адрес №096 (синтетический)",
+        "lat": 56.846453,
+        "lon": 60.687355,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-03"
+      }
+    ]
+  },
+  {
+    "access_node_id": "AN-0049",
+    "node_type": "OLT",
+    "technology": "PON",
+    "name": "Учебный узел 049 · PON",
+    "lat": 56.777104,
+    "lon": 60.603773,
+    "buildings": [
+      {
+        "building_id": "B-00097",
+        "address": "Екатеринбург, учебный адрес №097 (синтетический)",
+        "lat": 56.777104,
+        "lon": 60.603773,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-04"
+      },
+      {
+        "building_id": "B-00098",
+        "address": "Екатеринбург, учебный адрес №098 (синтетический)",
+        "lat": 56.778549,
+        "lon": 60.603541,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-04"
+      }
+    ]
+  },
+  {
+    "access_node_id": "AN-0050",
+    "node_type": "SWITCH",
+    "technology": "FTTB",
+    "name": "Учебный узел 050 · FTTB",
+    "lat": 56.838238,
+    "lon": 60.591056,
+    "buildings": [
+      {
+        "building_id": "B-00099",
+        "address": "Екатеринбург, учебный адрес №099 (синтетический)",
+        "lat": 56.838238,
+        "lon": 60.591056,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-05"
+      },
+      {
+        "building_id": "B-00100",
+        "address": "Екатеринбург, учебный адрес №100 (синтетический)",
+        "lat": 56.837337,
+        "lon": 60.589907,
+        "building_type": "MKD",
+        "overhead_line": false,
+        "zone_service_center_id": "SC-05"
+      }
+    ]
+  }
+]

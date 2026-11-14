@@ -1,0 +1,9 @@
+code,name,profiles,duration_min,max_start_delay_min,deadline_kind,deadline_value,repeat_deadline_value,pgp_relevant
+REPAIR,Устранение неисправности,LTP3,60,,HOURS,24,12,true
+DEGRADATION,Устранение деградации связи,LTP3,45,,HOURS,24,,false
+INST_PON_MKD,"Инсталляция ШПД/IPTV, МКД, PON",INSTALL,90,10,WORKING_DAYS,3,,false
+INST_FTTB_MKD,"Инсталляция ШПД/IPTV, МКД, FTTB",INSTALL,80,10,WORKING_DAYS,3,,false
+INST_PRIVATE_VLS,Инсталляция в частном секторе с ВЛС,INSTALL,120,10,WORKING_DAYS,3,,false
+ADD_SERVICE,Доподключение услуги,INSTALL,45,,HOURS,48,,false
+SURVEY_PRIVATE,Обследование частного сектора,INSTALL,45,,HOURS,48,,false
+DISMANTLE,Демонтаж оборудования,LTP3,30,,HOURS,48,,false

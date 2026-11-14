@@ -8,8 +8,11 @@ import (
 	"io"
 	"log/slog"
 	"magistral/backend/internal/application"
+	"magistral/backend/internal/auth"
 	"magistral/backend/internal/contract"
 	"magistral/backend/internal/dto"
+	"magistral/backend/internal/routing"
+	"magistral/backend/internal/storage/postgres"
 	"net/http"
 	"time"
 	"unicode/utf8"
@@ -18,6 +21,7 @@ import (
 type API struct {
 	Service   *application.Service
 	Validator *contract.Validator
+	Router    *routing.Client
 }
 
 func write(w http.ResponseWriter, status int, v any) {
@@ -28,8 +32,13 @@ func write(w http.ResponseWriter, status int, v any) {
 func fail(w http.ResponseWriter, e error) {
 	var a *application.Error
 	if !errors.As(e, &a) {
-		slog.Error("request failed", "error", e)
-		a = &application.Error{Status: 500, Code: "INTERNAL_ERROR", Message: "Internal server error"}
+		var identity *auth.Error
+		if errors.As(e, &identity) {
+			a = &application.Error{Status: identity.Status, Code: identity.Code, Message: identity.Message}
+		} else {
+			slog.Error("request failed", "error", e)
+			a = &application.Error{Status: 500, Code: "INTERNAL_ERROR", Message: "Internal server error"}
+		}
 	}
 	write(w, a.Status, map[string]any{"error": map[string]any{"code": a.Code, "message": a.Message}})
 }
@@ -52,6 +61,27 @@ func loaded(w http.ResponseWriter, c map[string]int) {
 }
 func (a *API) Handler() http.Handler {
 	mux := http.NewServeMux()
+	mux.HandleFunc("GET /ui/v1/days/{date}/staff/{staff}/road-route", a.roadRoute)
+	mux.HandleFunc("GET /ui/v1/days", func(w http.ResponseWriter, r *http.Request) {
+		days, e := a.Service.Store.Days(r.Context())
+		if e != nil {
+			fail(w, e)
+			return
+		}
+		write(w, 200, days)
+	})
+	mux.HandleFunc("GET /ui/v1/days/{date}/workspace", func(w http.ResponseWriter, r *http.Request) {
+		data, e := a.Service.Store.Workspace(r.Context(), r.PathValue("date"))
+		if errors.Is(e, postgres.ErrMissing) {
+			fail(w, &application.Error{Status: 404, Code: "DAY_NOT_FOUND", Message: "Day not loaded"})
+			return
+		}
+		if e != nil {
+			fail(w, e)
+			return
+		}
+		write(w, 200, data)
+	})
 	mux.HandleFunc("GET /api/v1/health", func(w http.ResponseWriter, r *http.Request) {
 		ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
 		defer cancel()
@@ -59,7 +89,7 @@ func (a *API) Handler() http.Handler {
 			fail(w, &application.Error{Status: 503, Code: "NOT_READY", Message: "Database unavailable"})
 			return
 		}
-		write(w, 200, map[string]string{"status": "ok", "team": "Магистраль", "version": "0.2.0"})
+		write(w, 200, map[string]string{"status": "ok", "team": "МаксТелеком", "version": "0.9.0"})
 	})
 	mux.HandleFunc("PUT /api/v1/reference", func(w http.ResponseWriter, r *http.Request) {
 		var v dto.ReferenceData
@@ -145,6 +175,29 @@ func (a *API) Handler() http.Handler {
 			return
 		}
 		write(w, 200, v)
+	})
+	mux.HandleFunc("POST /api/v1/days/{date}/events", func(w http.ResponseWriter, r *http.Request) {
+		ctx, cancel := context.WithTimeout(r.Context(), 9500*time.Millisecond)
+		defer cancel()
+		r = r.WithContext(ctx)
+		var ev dto.EventInput
+		if !a.decode(w, r, "Event", &ev) {
+			return
+		}
+		result, e := a.Service.Event(ctx, r.PathValue("date"), ev)
+		if e != nil {
+			fail(w, e)
+			return
+		}
+		write(w, 200, result)
+	})
+	mux.HandleFunc("GET /ui/v1/days/{date}/events", func(w http.ResponseWriter, r *http.Request) {
+		events, e := a.Service.EventJournal(r.Context(), r.PathValue("date"))
+		if e != nil {
+			fail(w, e)
+			return
+		}
+		write(w, 200, events)
 	})
 	mux.HandleFunc("GET /ui/v1/days/{date}", func(w http.ResponseWriter, r *http.Request) {
 		var raw []byte

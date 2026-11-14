@@ -137,6 +137,7 @@ type PlanRequest struct {
 	TimeLimitSec *int64 `json:"time_limit_sec,omitempty"`
 }
 type Plan struct {
+	Optimization   *PlanOptimization `json:"optimization,omitempty"`
 	Date           string            `json:"date"`
 	PlanVersion    int64             `json:"plan_version"`
 	BasedOnEventId *string           `json:"based_on_event_id,omitempty"`
@@ -232,12 +233,49 @@ type EventBase struct {
 	Type      EventType `json:"type"`
 	Timestamp DateTime  `json:"timestamp"`
 }
-type NewOrderEvent json.RawMessage
-type OrderCancelledEvent json.RawMessage
-type VisitDelayedEvent json.RawMessage
-type OrderTransferredEvent json.RawMessage
-type StaffUnavailableEvent json.RawMessage
-type TimeTickEvent json.RawMessage
+type NewOrderEvent struct {
+	EventId   string   `json:"event_id"`
+	Type      string   `json:"type"`
+	Timestamp DateTime `json:"timestamp"`
+	Order     Order    `json:"order"`
+}
+type OrderCancelledEvent struct {
+	EventId   string   `json:"event_id"`
+	Type      string   `json:"type"`
+	Timestamp DateTime `json:"timestamp"`
+	OrderId   string   `json:"order_id"`
+	Reason    string   `json:"reason"`
+}
+type VisitDelayedEvent struct {
+	EventId     string   `json:"event_id"`
+	Type        string   `json:"type"`
+	Timestamp   DateTime `json:"timestamp"`
+	StaffId     string   `json:"staff_id"`
+	OrderId     string   `json:"order_id"`
+	ExpectedEnd DateTime `json:"expected_end"`
+}
+type OrderTransferredEvent struct {
+	EventId       string   `json:"event_id"`
+	Type          string   `json:"type"`
+	Timestamp     DateTime `json:"timestamp"`
+	StaffId       string   `json:"staff_id"`
+	OrderId       string   `json:"order_id"`
+	ActualEnd     DateTime `json:"actual_end"`
+	TransferredTo string   `json:"transferred_to"`
+}
+type StaffUnavailableEvent struct {
+	EventId   string    `json:"event_id"`
+	Type      string    `json:"type"`
+	Timestamp DateTime  `json:"timestamp"`
+	StaffId   string    `json:"staff_id"`
+	Until     *DateTime `json:"until,omitempty"`
+	Reason    string    `json:"reason"`
+}
+type TimeTickEvent struct {
+	EventId   string   `json:"event_id"`
+	Type      string   `json:"type"`
+	Timestamp DateTime `json:"timestamp"`
+}
 type Event json.RawMessage
 type EventResult struct {
 	EventId         string   `json:"event_id"`

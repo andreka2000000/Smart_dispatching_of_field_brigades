@@ -24,3 +24,59 @@ CREATE TABLE IF NOT EXISTS plan_snapshots (
  PRIMARY KEY(day,generation,revision)
 );
 INSERT INTO schema_migrations(version) VALUES(2) ON CONFLICT DO NOTHING;
+ALTER TABLE days ADD COLUMN IF NOT EXISTS event_state jsonb NOT NULL DEFAULT '{}';
+CREATE TABLE IF NOT EXISTS events (
+ day date NOT NULL REFERENCES days(date) ON DELETE CASCADE,
+ generation bigint NOT NULL,
+ event_id text NOT NULL,
+ timestamp timestamptz NOT NULL,
+ type text NOT NULL,
+ plan_version bigint NOT NULL,
+ document jsonb NOT NULL,
+ result jsonb NOT NULL,
+ PRIMARY KEY(day,generation,event_id),
+ UNIQUE(day,generation,plan_version)
+);
+CREATE INDEX IF NOT EXISTS events_chronology ON events(day,generation,plan_version);
+INSERT INTO schema_migrations(version) VALUES(3) ON CONFLICT DO NOTHING;
+-- Application identity is independent from replaceable case reference data.
+CREATE TABLE IF NOT EXISTS app_users (
+ id text PRIMARY KEY, username text NOT NULL UNIQUE, name text NOT NULL,
+ role text NOT NULL CHECK(role IN ('DISPATCHER','TECHNICIAN','SUBSCRIBER')),
+ staff_id text, password_hash text NOT NULL, disabled boolean NOT NULL DEFAULT false,
+ created_at timestamptz NOT NULL DEFAULT now(),
+ CHECK ((role='TECHNICIAN' AND staff_id IS NOT NULL) OR (role<>'TECHNICIAN' AND staff_id IS NULL))
+);
+CREATE UNIQUE INDEX IF NOT EXISTS app_users_staff ON app_users(staff_id) WHERE role='TECHNICIAN' AND NOT disabled;
+CREATE TABLE IF NOT EXISTS app_sessions (
+ token_hash bytea PRIMARY KEY, user_id text NOT NULL REFERENCES app_users(id) ON DELETE CASCADE,
+ expires_at timestamptz NOT NULL, created_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS app_sessions_user ON app_sessions(user_id);
+CREATE TABLE IF NOT EXISTS app_login_limits (key text PRIMARY KEY, attempts integer NOT NULL, reset_at timestamptz NOT NULL);
+CREATE TABLE IF NOT EXISTS service_requests (
+ id text PRIMARY KEY, user_id text NOT NULL REFERENCES app_users(id),
+ service text NOT NULL CHECK(service IN ('INTERNET','REPAIR','TV')),
+ address text NOT NULL, phone text NOT NULL, description text NOT NULL,
+ preferred_date text NOT NULL DEFAULT '', status text NOT NULL DEFAULT 'NEW' CHECK(status IN ('NEW','IN_REVIEW','CLOSED')),
+ decision_note text NOT NULL DEFAULT '', created_at timestamptz NOT NULL DEFAULT now(),
+ updated_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS service_requests_owner ON service_requests(user_id,created_at DESC);
+INSERT INTO schema_migrations(version) VALUES(4) ON CONFLICT DO NOTHING;
+ALTER TABLE service_requests DROP CONSTRAINT IF EXISTS service_requests_status_check;
+ALTER TABLE service_requests ADD CONSTRAINT service_requests_status_check CHECK(status IN ('NEW','IN_REVIEW','APPROVED','REJECTED','CLOSED'));
+CREATE TABLE IF NOT EXISTS request_orders (
+ request_id text PRIMARY KEY REFERENCES service_requests(id), day text NOT NULL,generation bigint NOT NULL,
+ order_id text NOT NULL,result jsonb NOT NULL, UNIQUE(day,generation,order_id)
+);
+CREATE TABLE IF NOT EXISTS visit_facts (
+ day text NOT NULL,generation bigint NOT NULL,order_id text NOT NULL,staff_id text NOT NULL,
+ status text NOT NULL CHECK(status IN ('IN_PROGRESS','COMPLETED')),started_at timestamptz NOT NULL,
+ completed_at timestamptz,report text NOT NULL DEFAULT '', PRIMARY KEY(day,generation,order_id)
+);
+INSERT INTO schema_migrations(version) VALUES(5) ON CONFLICT DO NOTHING;
+ALTER TABLE service_requests ADD COLUMN IF NOT EXISTS client_key text;
+ALTER TABLE service_requests ADD COLUMN IF NOT EXISTS payload_hash text;
+CREATE UNIQUE INDEX IF NOT EXISTS service_requests_client_key ON service_requests(user_id,client_key) WHERE client_key IS NOT NULL;
+INSERT INTO schema_migrations(version) VALUES(6) ON CONFLICT DO NOTHING;

@@ -7,6 +7,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"magistral/backend/internal/domain"
 	"magistral/backend/internal/dto"
+	"magistral/backend/internal/optimization"
 	"magistral/backend/internal/storage/postgres"
 	"reflect"
 	"time"
@@ -22,7 +23,10 @@ func invalid(format string, args ...any) error {
 	return &Error{422, "INVALID_DATA", fmt.Sprintf(format, args...)}
 }
 
-type Service struct{ Store *postgres.Store }
+type Service struct {
+	Store     *postgres.Store
+	Optimizer *optimization.Client
+}
 
 func unique(seen map[string]bool, id string) error {
 	if id == "" || seen[id] {
@@ -138,6 +142,13 @@ func (s *Service) Matrix(ctx context.Context, m dto.TravelMatrix) error {
 		return invalid("%s", e)
 	}
 	return s.Store.Update(ctx, func(tx pgx.Tx) error {
+		var hasEvents bool
+		if e := tx.QueryRow(ctx, "SELECT EXISTS(SELECT 1 FROM days WHERE event_count>0)").Scan(&hasEvents); e != nil {
+			return e
+		}
+		if hasEvents {
+			return invalid("Reset event-bearing days or reload reference before replacing the travel matrix")
+		}
 		r, e := postgres.Read[dto.ReferenceData](ctx, tx, "reference_data")
 		if e != nil {
 			return e
